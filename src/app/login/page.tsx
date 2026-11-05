@@ -1,6 +1,7 @@
 // ==============================================================================
-// VELTRON SECURE LOGIN SCREEN (/login)
-// Dark Cinematic AI Finance Aesthetics with Real Google OAuth & Argon2id Auth
+// VELTRON BESPOKE ROYAL LUXURY LOGIN SCREEN (/login)
+// Milanese Editorial Architecture & Private Sovereign Banking Aesthetics
+// Palette: Espresso Brown (#140C0A), Royal Burgundy (#54252D), Antique Gold (#C6A477), Ivory (#FAF7F1)
 // ==============================================================================
 
 'use client';
@@ -9,11 +10,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Logo } from '@/components/ui/Logo';
-import { GlassPanel } from '@/components/ui/GlassPanel';
-import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Badge } from '@/components/ui/Badge';
-import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Sparkles, Send } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 
 function LoginForm() {
@@ -42,13 +40,13 @@ function LoginForm() {
       });
 
       if (res?.error) {
-        setErrorMessage('Invalid institutional email or password. Please try again.');
+        setErrorMessage('Noto‘g‘ri elektron pochta yoki maxfiy parol. Qayta urinib ko‘ring.');
       } else {
         router.push(callbackUrl);
         router.refresh();
       }
     } catch {
-      setErrorMessage('A network error occurred. Please verify your connection.');
+      setErrorMessage('Tarmoq xatosi yuz berdi. Internet aloqangizni tekshiring.');
     } finally {
       setIsLoading(false);
     }
@@ -58,27 +56,28 @@ function LoginForm() {
     setIsGoogleLoading(true);
     setErrorMessage('');
     try {
-      // Trigger actual NextAuth Google OAuth flow
       await signIn('google', { callbackUrl });
     } catch {
-      setErrorMessage(
-        'Google OAuth initiation failed. Ensure AUTH_GOOGLE_ID & AUTH_GOOGLE_SECRET are set in your environment.'
-      );
+      setErrorMessage('Google OAuth xizmati bilan ulanishda muammo yuz berdi.');
       setIsGoogleLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-[#07090E]">
-      {/* 1. Cinematic Background Nebula & Particle Glow */}
+    <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-[#120A08]">
+      {/* 1. Cinematic Luxury Ambient Background Light */}
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-[140px] bg-valixen-violet/15" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-[140px] bg-valixen-ice/10" />
+        <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] rounded-full blur-[160px] bg-[#C6A477]/10" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[160px] bg-[#54252D]/20" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#120A08_80%)]" />
       </div>
 
       {/* 2. Main Login Card Container */}
       <div className="relative z-10 w-full max-w-md my-8">
-        <GlassPanel variant="elevated" specularEdge className="p-8 sm:p-10 shadow-2xl">
+        <div className="relative rounded-2xl bg-[#1C1210]/90 backdrop-blur-2xl border border-[#C6A477]/30 p-8 sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.85)]">
+          {/* Subtle Golden Hairline Accent Top */}
+          <div className="absolute top-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-[#C6A477]/60 to-transparent" />
+
           {/* Brand Header */}
           <div className="text-center space-y-3 mb-8">
             <div className="flex justify-center">
@@ -86,37 +85,36 @@ function LoginForm() {
             </div>
 
             <div>
-              <h1 className="text-2xl font-display font-extrabold text-white tracking-tight">
-                VELTRON TERMINAL
+              <h1 className="text-3xl font-serif font-bold text-[#FAF7F1] tracking-wide">
+                VELTRON
               </h1>
-              <p className="text-xs font-mono text-slate-400 mt-1">
-                ENTERPRISE IDENTITY & QUANTUM ACCESS
+              <p className="text-[11px] font-sans tracking-[0.22em] text-[#C6A477] uppercase mt-1">
+                SOVEREIGN FINANCIAL TERMINAL
               </p>
             </div>
 
-            <Badge variant="default" dot className="px-2.5 py-0.5 text-[10px]">
-              ARGON2ID ZERO-KNOWLEDGE LEDGER
-            </Badge>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#54252D]/30 border border-[#C6A477]/30 text-[10px] font-sans text-[#EAD8BE]">
+              <ShieldCheck className="w-3 h-3 text-[#C6A477]" />
+              <span>AES-256 ZERO-KNOWLEDGE LEDGER</span>
+            </div>
           </div>
 
           {/* Error Banner */}
           {errorMessage && (
-            <div className="mb-6 p-3.5 rounded-xl bg-valixen-telemetry-risk/15 border border-valixen-telemetry-risk/40 text-xs font-mono text-white flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 text-valixen-telemetry-risk shrink-0 mt-0.5" />
+            <div className="mb-6 p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 text-xs font-sans text-red-200 flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          {/* Telegram Login / Bot Access Button */}
+          {/* Telegram Login / Direct Bot Access Button */}
           <a
             href="https://t.me/VeltronAI_Bot"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full h-12 rounded-xl bg-[#2AABEE]/15 hover:bg-[#2AABEE]/25 border border-[#2AABEE]/40 hover:border-[#2AABEE]/70 text-xs font-mono font-bold text-white flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] mb-3 group shadow-lg shadow-[#2AABEE]/5"
+            className="w-full h-12 rounded-xl bg-[#2AABEE]/15 hover:bg-[#2AABEE]/25 border border-[#2AABEE]/40 hover:border-[#2AABEE]/70 text-xs font-sans font-bold text-[#FAF7F1] flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] mb-3 group shadow-lg shadow-[#2AABEE]/5"
           >
-            <svg className="w-5 h-5 text-[#2AABEE] transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z" />
-            </svg>
+            <Send className="w-4 h-4 text-[#2AABEE] transition-transform group-hover:scale-110" />
             <span>TELEGRAM BOT BILAN KIRISH (@VeltronAI_Bot)</span>
           </a>
 
@@ -125,10 +123,10 @@ function LoginForm() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isGoogleLoading || isLoading}
-            className="w-full h-12 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-valixen-ice/40 text-xs font-mono font-bold text-white flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] mb-6 disabled:opacity-50"
+            className="w-full h-12 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#C6A477]/25 hover:border-[#C6A477]/50 text-xs font-sans font-medium text-[#FAF7F1] flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] mb-6 disabled:opacity-50"
           >
             {isGoogleLoading ? (
-              <span className="w-4 h-4 rounded-full border-2 border-valixen-ice border-t-transparent animate-spin" />
+              <span className="w-4 h-4 rounded-full border-2 border-[#C6A477] border-t-transparent animate-spin" />
             ) : (
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
@@ -149,43 +147,44 @@ function LoginForm() {
                 />
               </svg>
             )}
-            <span>CONTINUE WITH GOOGLE</span>
+            <span>GOOGLE AKKAUNT BILAN KIRISH</span>
           </button>
 
           {/* Divider */}
           <div className="relative flex items-center justify-center my-6">
-            <div className="w-full h-px bg-white/[0.08]" />
-            <span className="absolute px-3 bg-[#0E121B] text-[10px] font-mono text-slate-500 uppercase">
-              OR EMAIL IDENTITY
+            <div className="w-full h-px bg-[#C6A477]/20" />
+            <span className="absolute px-3 bg-[#1C1210] text-[10px] font-sans tracking-widest text-[#C6A477] uppercase">
+              YOKI EMAIL ORQALI
             </span>
           </div>
 
           {/* Credentials Form */}
           <form onSubmit={handleCredentialsLogin} className="space-y-4">
             <div>
-              <label className="text-[11px] font-mono text-slate-400 block mb-1.5 uppercase">
-                INSTITUTIONAL EMAIL
+              <label className="text-[11px] font-sans font-medium text-[#EAD8BE] block mb-1.5 uppercase tracking-wider">
+                Elektron Pochta
               </label>
               <Input
                 type="email"
                 required
                 value={email}
                 onChange={(e: any) => setEmail(e.target.value)}
-                placeholder="trader@veltron.com"
-                leftIcon={<Mail className="w-4 h-4 text-slate-400" />}
+                placeholder="investor@veltron.com"
+                leftIcon={<Mail className="w-4 h-4 text-[#C6A477]" />}
+                className="bg-[#120A08] border-[#C6A477]/30 text-[#FAF7F1] placeholder:text-stone-500 focus:border-[#C6A477]"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-[11px] font-mono text-slate-400 uppercase">
-                  PASSWORD
+                <label className="text-[11px] font-sans font-medium text-[#EAD8BE] uppercase tracking-wider">
+                  Maxfiy Parol
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-[11px] font-mono text-valixen-ice hover:underline"
+                  className="text-[11px] font-sans text-[#C6A477] hover:underline"
                 >
-                  Forgot?
+                  Unutdingizmi?
                 </Link>
               </div>
               <Input
@@ -194,7 +193,8 @@ function LoginForm() {
                 value={password}
                 onChange={(e: any) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                leftIcon={<Lock className="w-4 h-4 text-slate-400" />}
+                leftIcon={<Lock className="w-4 h-4 text-[#C6A477]" />}
+                className="bg-[#120A08] border-[#C6A477]/30 text-[#FAF7F1] placeholder:text-stone-500 focus:border-[#C6A477]"
               />
             </div>
 
@@ -204,37 +204,41 @@ function LoginForm() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0E121B] border-white/20 text-valixen-violet focus:ring-0 cursor-pointer"
+                  className="w-4 h-4 rounded bg-[#120A08] border-[#C6A477]/40 text-[#C6A477] focus:ring-0 cursor-pointer accent-[#C6A477]"
                 />
-                <span className="text-xs font-mono text-slate-400">Remember 30 days</span>
+                <span className="text-xs font-sans text-stone-300">30 kunga eslab qolish</span>
               </label>
             </div>
 
-            <Button
+            <button
               type="submit"
               disabled={isLoading || isGoogleLoading}
-              isLoading={isLoading}
-              variant="primary"
-              size="lg"
-              className="w-full mt-2 font-mono font-bold tracking-wider"
+              className="w-full h-12 rounded-xl mt-2 bg-gradient-to-r from-[#DFCAAA] via-[#C6A477] to-[#A88B5B] hover:brightness-110 text-[#120A08] text-xs font-sans font-bold tracking-wider uppercase transition-all duration-200 active:scale-[0.98] shadow-lg shadow-[#C6A477]/20 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              AUTHENTICATE SESSION →
-            </Button>
+              {isLoading ? (
+                <span className="w-4 h-4 rounded-full border-2 border-[#120A08] border-t-transparent animate-spin" />
+              ) : (
+                <>
+                  <span>Tizimga Kirish</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
           </form>
 
           {/* Bottom Footer Link */}
-          <div className="mt-8 pt-6 border-t border-white/[0.08] text-center">
-            <p className="text-xs text-slate-400 font-sans">
-              New to the sovereign ecosystem?{' '}
+          <div className="mt-8 pt-6 border-t border-[#C6A477]/20 text-center">
+            <p className="text-xs text-stone-300 font-sans">
+              Ekotizimda yangimisiz?{' '}
               <Link
                 href="/register"
-                className="text-white font-mono font-bold underline underline-offset-4 hover:text-valixen-ice transition-colors"
+                className="text-[#FAF7F1] font-semibold underline underline-offset-4 hover:text-[#C6A477] transition-colors"
               >
-                Create Account
+                Yangi Hisob Ochish
               </Link>
             </p>
           </div>
-        </GlassPanel>
+        </div>
       </div>
     </div>
   );
@@ -242,7 +246,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <React.Suspense fallback={<div className="min-h-screen bg-valixen-obsidian flex items-center justify-center text-slate-500 font-mono">Loading authentication gate...</div>}>
+    <React.Suspense fallback={<div className="min-h-screen bg-[#120A08] flex items-center justify-center text-[#C6A477] font-sans">Tizimga kirish yuklanmoqda...</div>}>
       <LoginForm />
     </React.Suspense>
   );

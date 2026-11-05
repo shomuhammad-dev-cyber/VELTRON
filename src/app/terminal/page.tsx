@@ -33,6 +33,8 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import { LuxuryNavbar } from '@/components/one-of-one/LuxuryNavbar';
+import { LuxuryFooter } from '@/components/one-of-one/LuxuryFooter';
 
 export default function TerminalPage() {
   const router = useRouter();
@@ -74,65 +76,9 @@ export default function TerminalPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-white flex flex-col">
-      {/* 1. Terminal Top Navigation Bar */}
-      <header className="h-16 border-b border-white/[0.08] bg-[#0A0D14]/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2">
-            <Logo variant="main" size="sm" />
-          </Link>
-
-          <div className="hidden md:flex items-center gap-2">
-            <Badge variant="cyan" dot className="font-mono text-[10px]">
-              QUANTUM ENGINE ONLINE
-            </Badge>
-            <Badge variant="default" className="font-mono text-[10px]">
-              ROLE: {userRole}
-            </Badge>
-          </div>
-        </div>
-
-        {/* User Session & Security Actions */}
-        <div className="flex items-center gap-3">
-          {/* Quick Role Switcher (Demonstrating RBAC capabilities) */}
-          <div className="hidden lg:flex items-center gap-1.5 bg-white/[0.03] p-1 rounded-lg border border-white/10 text-[10px] font-mono">
-            <span className="text-slate-400 px-1.5">RBAC ROLE:</span>
-            {(['USER', 'TRADER', 'INSTITUTIONAL', 'SYSTEM_ADMIN'] as const).map((role) => (
-              <button
-                key={role}
-                onClick={() => setUserRole(role)}
-                className={`px-2 py-0.5 rounded transition-colors ${
-                  userRole === role
-                    ? 'bg-valixen-violet text-white font-bold'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {role}
-              </button>
-            ))}
-          </div>
-
-          <Button
-            onClick={() => setIsLogoutModalOpen(true)}
-            variant="secondary"
-            size="sm"
-            className="font-mono text-xs hidden sm:flex items-center gap-1.5"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-valixen-ice" />
-            <span>DEVICES</span>
-          </Button>
-
-          <Button
-            onClick={handleSignOut}
-            variant="ghost"
-            size="sm"
-            className="font-mono text-xs text-slate-400 hover:text-valixen-telemetry-risk hover:bg-valixen-telemetry-risk/10 flex items-center gap-1.5"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>DISCONNECT</span>
-          </Button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#090706] text-[#FAF7F1] flex flex-col font-sans selection:bg-[#C6A477]/30 selection:text-white">
+      {/* 1. Global Navigation Bar */}
+      <LuxuryNavbar />
 
       {/* Notification Toast */}
       {statusNotification && (
@@ -361,6 +307,9 @@ export default function TerminalPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Luxury Footer */}
+      <LuxuryFooter />
     </div>
   );
 }

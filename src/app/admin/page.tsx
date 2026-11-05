@@ -296,9 +296,9 @@ export default function AdminPortalPage() {
   const announcements = overviewData?.announcements || [];
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-slate-100 flex flex-col font-sans selection:bg-valixen-violet selection:text-white">
+    <div className="min-h-screen bg-[#090706] text-[#FAF7F1] flex flex-col font-sans selection:bg-[#C6A477]/30 selection:text-white">
       {/* 1. Global Enterprise Header */}
-      <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#0A0D14]/90 backdrop-blur-2xl">
+      <header className="sticky top-0 z-50 border-b border-[#C6A477]/20 bg-[#1A110E]/95 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-6">
             <Link href="/admin" className="flex items-center gap-2">

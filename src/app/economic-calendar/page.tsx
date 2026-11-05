@@ -14,6 +14,8 @@ import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/ui/StatCard';
 import { MacroEventDTO } from '@/server/services/calendar.service';
+import { LuxuryNavbar } from '@/components/one-of-one/LuxuryNavbar';
+import { LuxuryFooter } from '@/components/one-of-one/LuxuryFooter';
 import {
   Calendar,
   Globe,
@@ -84,32 +86,9 @@ export default function EconomicCalendarPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-white flex flex-col font-sans selection:bg-valixen-violet selection:text-white">
-      {/* 1. Navigation Header */}
-      <header className="h-16 border-b border-white/[0.08] bg-[#0A0D14]/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <Logo variant="main" size="sm" />
-          </Link>
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono">
-            <span className="text-slate-500">/</span>
-            <span className="text-valixen-ice font-bold">ECONOMIC CALENDAR</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Link href="/markets">
-            <Button variant="ghost" size="sm" className="font-mono text-xs text-slate-300">
-              Markets
-            </Button>
-          </Link>
-          <Link href="/trading">
-            <Button variant="primary" size="sm" className="font-mono text-xs">
-              Trading Terminal →
-            </Button>
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#090706] text-[#FAF7F1] flex flex-col font-sans selection:bg-[#C6A477]/30 selection:text-white">
+      {/* 1. Global Navigation Bar */}
+      <LuxuryNavbar />
 
       {/* 2. Main Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -334,6 +313,9 @@ export default function EconomicCalendarPage() {
           </div>
         )}
       </main>
+
+      {/* Luxury Footer */}
+      <LuxuryFooter />
     </div>
   );
 }

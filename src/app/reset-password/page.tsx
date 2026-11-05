@@ -88,11 +88,11 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-[#07090E]">
+    <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-[#120A08]">
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
-        <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-[140px] bg-valixen-violet/15" />
-        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 rounded-full blur-[140px] bg-valixen-ice/10" />
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-[140px] bg-[#C6A477]/10" />
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 rounded-full blur-[140px] bg-[#54252D]/20" />
       </div>
 
       <div className="relative z-10 w-full max-w-md my-8">

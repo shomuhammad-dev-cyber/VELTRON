@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { NotificationDTO } from '@/server/services/notifications.service';
 import { TelegramConnectCard } from '@/components/telegram/TelegramConnectCard';
+import { LuxuryNavbar } from '@/components/one-of-one/LuxuryNavbar';
+import { LuxuryFooter } from '@/components/one-of-one/LuxuryFooter';
 import {
   Bell,
   Check,
@@ -103,43 +105,9 @@ export default function NotificationsCenterPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-white flex flex-col font-sans selection:bg-valixen-violet selection:text-white">
-      {/* 1. Header Toolbar */}
-      <header className="h-16 border-b border-white/[0.08] bg-[#0A0D14]/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <Logo variant="main" size="sm" />
-          </Link>
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono">
-            <span className="text-slate-500">/</span>
-            <span className="text-valixen-ice font-bold">NOTIFICATION CENTER</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleMarkAllAsRead}
-              className="text-xs font-mono text-valixen-ice flex items-center gap-1.5"
-            >
-              <Check className="w-3.5 h-3.5" /> MARK ALL READ
-            </Button>
-          )}
-          <Link href="/settings/notifications">
-            <Button variant="glass" size="sm" className="font-mono text-xs flex items-center gap-1.5 text-sky-400 border-sky-500/30">
-              <Send className="w-3.5 h-3.5" />
-              <span>Telegram Settings</span>
-            </Button>
-          </Link>
-          <Link href="/dashboard">
-            <Button variant="glass" size="sm" className="font-mono text-xs">
-              Dashboard →
-            </Button>
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#090706] text-[#FAF7F1] flex flex-col font-sans selection:bg-[#C6A477]/30 selection:text-white">
+      {/* 1. Global Navigation Bar */}
+      <LuxuryNavbar />
 
       {/* 2. Main Content */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -283,6 +251,9 @@ export default function NotificationsCenterPage() {
           </div>
         )}
       </main>
+
+      {/* Luxury Footer */}
+      <LuxuryFooter />
     </div>
   );
 }

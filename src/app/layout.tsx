@@ -72,12 +72,12 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-valixen-obsidian font-sans antialiased text-slate-100 min-h-screen relative overflow-x-hidden selection:bg-valixen-gold/30 selection:text-white" suppressHydrationWarning>
-        {/* Cinematic Vignette Ambient Light with Subtle Gold Horology Warmth */}
+      <body className="bg-[#120A08] font-sans antialiased text-[#E9DFCE] min-h-screen relative overflow-x-hidden selection:bg-[#C6A477]/30 selection:text-[#FAF7F1]" suppressHydrationWarning>
+        {/* Cinematic Vignette Ambient Light with Italian Elegance & Bespoke Royal Luxury Warmth */}
         <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true" suppressHydrationWarning>
-          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-valixen-gold/10 rounded-full blur-[140px]" />
-          <div className="absolute top-1/3 -left-40 w-[600px] h-[600px] bg-valixen-violet/10 rounded-full blur-[140px]" />
-          <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-valixen-ice/5 rounded-full blur-[160px]" />
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-[#C6A477]/12 rounded-full blur-[140px]" />
+          <div className="absolute top-1/3 -left-40 w-[650px] h-[650px] bg-[#54252D]/18 rounded-full blur-[150px]" />
+          <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-[#30201A]/15 rounded-full blur-[160px]" />
         </div>
 
         <I18nProvider>

@@ -15,6 +15,8 @@ import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/ui/StatCard';
 import { Modal } from '@/components/ui/Modal';
+import { LuxuryNavbar } from '@/components/one-of-one/LuxuryNavbar';
+import { LuxuryFooter } from '@/components/one-of-one/LuxuryFooter';
 import {
   History,
   Search,
@@ -197,108 +199,9 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-slate-100 flex flex-col font-sans selection:bg-valixen-violet selection:text-white">
-      {/* 1. Header Navigation */}
-      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#07090E]/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <Logo size="md" />
-            </Link>
-
-            <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
-              <Link
-                href="/dashboard"
-                className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/analytics"
-                className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all"
-              >
-                Analytics
-              </Link>
-              <Link
-                href="/markets"
-                className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all"
-              >
-                Markets
-              </Link>
-              <Link
-                href="/trading"
-                className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all"
-              >
-                Paper Trading
-              </Link>
-              <Link
-                href="/wallet"
-                className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all"
-              >
-                Wallet
-              </Link>
-              <Link
-                href="/transactions"
-                className="px-3 py-1.5 rounded-lg text-valixen-ice font-semibold bg-valixen-ice/10 border border-valixen-ice/20 transition-all"
-              >
-                Transactions
-              </Link>
-              <Link
-                href="/ai-assistant"
-                className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all"
-              >
-                AI Assistant
-              </Link>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Currency selector */}
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
-              className="bg-white/[0.04] border border-white/10 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-200 focus:outline-none focus:border-valixen-violet cursor-pointer"
-            >
-              <option value="USD" className="bg-[#0E121B]">USD ($)</option>
-              <option value="EUR" className="bg-[#0E121B]">EUR (€)</option>
-              <option value="GBP" className="bg-[#0E121B]">GBP (£)</option>
-              <option value="UZS" className="bg-[#0E121B]">UZS (so‘m)</option>
-            </select>
-
-            {/* Privacy toggle */}
-            <button
-              onClick={() => setHideBalance(!hideBalance)}
-              title={hideBalance ? 'Show amounts' : 'Hide amounts'}
-              className="p-2 rounded-lg bg-white/[0.04] border border-white/10 text-slate-400 hover:text-white transition-colors"
-            >
-              {hideBalance ? <EyeOff className="w-4 h-4 text-valixen-ice" /> : <Eye className="w-4 h-4" />}
-            </button>
-
-            {/* Refresh */}
-            <button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className={`p-2 rounded-lg bg-white/[0.04] border border-white/10 text-slate-400 hover:text-white transition-colors ${
-                refreshing ? 'animate-spin text-valixen-violet' : ''
-              }`}
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-
-            {/* Export Statement CSV */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportCSV}
-              disabled={transactions.length === 0}
-              className="border-white/10 hover:border-valixen-violet text-xs font-medium text-slate-200"
-            >
-              <Download className="w-3.5 h-3.5 mr-1.5 text-valixen-ice" />
-              Export CSV
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#090706] text-[#FAF7F1] flex flex-col font-sans selection:bg-[#C6A477]/30 selection:text-white">
+      {/* 1. Global Navigation Bar */}
+      <LuxuryNavbar />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -732,6 +635,9 @@ export default function TransactionsPage() {
           </div>
         )}
       </Modal>
+
+      {/* Luxury Footer */}
+      <LuxuryFooter />
     </div>
   );
 }

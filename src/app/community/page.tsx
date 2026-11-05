@@ -18,6 +18,8 @@ import { CommunityNavTabs } from '@/components/community/CommunityNavTabs';
 import { CommunityRulesModal } from '@/components/community/CommunityRulesModal';
 import { ReportModal } from '@/components/community/ReportModal';
 import { PostCard } from '@/components/community/PostCard';
+import { LuxuryNavbar } from '@/components/one-of-one/LuxuryNavbar';
+import { LuxuryFooter } from '@/components/one-of-one/LuxuryFooter';
 import {
   Users,
   MessageSquare,
@@ -124,30 +126,9 @@ export default function GlobalCommunityPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-white flex flex-col font-sans selection:bg-valixen-violet selection:text-white sm:px-0 md:px-0 lg:px-0">
-      {/* 1. Navigation Header */}
-      <header className="h-16 border-b border-white/[0.08] bg-[#0A0D14]/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <Logo variant="main" size="sm" />
-          </Link>
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono">
-            <span className="text-slate-500">/</span>
-            <span className="text-valixen-ice font-bold">COMMUNITY NETWORK</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setIsPostModalOpen(true)}
-            className="flex items-center gap-2 font-mono text-xs"
-          >
-            <Plus className="w-3.5 h-3.5" /> NEW DISPATCH / QUESTION
-          </Button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#090706] text-[#FAF7F1] flex flex-col font-sans selection:bg-[#C6A477]/30 selection:text-white sm:px-0 md:px-0 lg:px-0">
+      {/* 1. Global Navigation Bar */}
+      <LuxuryNavbar />
 
       {/* 2. Main Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 sm:px-6 md:px-8 lg:px-8">
@@ -441,6 +422,9 @@ export default function GlobalCommunityPage() {
           </div>
         </form>
       </Modal>
+
+      {/* Luxury Footer */}
+      <LuxuryFooter />
     </div>
   );
 }

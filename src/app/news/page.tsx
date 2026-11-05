@@ -13,6 +13,8 @@ import { GlassPanel } from '@/components/ui/GlassPanel';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
+import { LuxuryNavbar } from '@/components/one-of-one/LuxuryNavbar';
+import { LuxuryFooter } from '@/components/one-of-one/LuxuryFooter';
 import {
   Newspaper,
   Bookmark,
@@ -194,73 +196,9 @@ export default function FinancialNewsPage() {
   }, [articles, featuredArticle]);
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-slate-100 flex flex-col font-sans selection:bg-valixen-violet selection:text-white">
+    <div className="min-h-screen bg-[#090706] text-[#FAF7F1] flex flex-col font-sans selection:bg-[#C6A477]/30 selection:text-white">
       {/* 1. Global Navigation Bar */}
-      <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#0A0D14]/85 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
-              <Logo variant="main" size="md" />
-            </Link>
-
-            <nav className="hidden lg:flex items-center gap-1 p-1 bg-white/[0.02] rounded-xl border border-white/[0.06] text-xs font-mono">
-              <Link href="/dashboard" className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all">
-                Dashboard
-              </Link>
-              <Link href="/markets" className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all">
-                Markets
-              </Link>
-              <Link href="/trading" className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all">
-                Trading
-              </Link>
-              <Link href="/wallet" className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all">
-                Wallet
-              </Link>
-              <Link href="/analytics" className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all">
-                Analytics
-              </Link>
-              <Link href="/ai-assistant" className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all">
-                AI Assistant
-              </Link>
-              <Link href="/education" className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all">
-                Academy
-              </Link>
-              <Link
-                href="/news"
-                className="px-3 py-1.5 rounded-lg text-valixen-violet font-semibold bg-valixen-violet/10 border border-valixen-violet/25 transition-all flex items-center gap-1.5"
-              >
-                <Newspaper className="w-3.5 h-3.5 text-valixen-ice" />
-                News
-              </Link>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setIsAdminModalOpen(true)}
-              variant="secondary"
-              size="sm"
-              className="text-xs font-mono flex items-center gap-1.5 bg-white/[0.03] border-white/[0.1] hover:bg-white/[0.06]"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Publish Dispatch</span>
-            </Button>
-
-            <button
-              onClick={() => setOnlyBookmarked(!onlyBookmarked)}
-              className={`p-2 rounded-xl border text-xs font-mono transition-all flex items-center gap-1.5 ${
-                onlyBookmarked
-                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
-                  : 'bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-white'
-              }`}
-              title="Filter Saved Bookmarks"
-            >
-              <Bookmark className="w-4 h-4" />
-              <span className="hidden sm:inline">Saved</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      <LuxuryNavbar />
 
       {/* 2. Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -628,6 +566,8 @@ export default function FinancialNewsPage() {
           </div>
         </div>
       )}
+      {/* Luxury Footer */}
+      <LuxuryFooter />
     </div>
   );
 }

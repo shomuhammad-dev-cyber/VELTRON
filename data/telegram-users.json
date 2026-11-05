@@ -1,0 +1,32 @@
+{
+  "7552517378": {
+    "chatId": 7552517378,
+    "firstName": "Hurmatli Investor",
+    "username": "Foydalanuvchi",
+    "language": "uz",
+    "cashBalance": 100000,
+    "holdings": {
+      "BTC": {
+        "symbol": "BTC",
+        "amount": 0.5,
+        "avgBuyPrice": 62000
+      },
+      "ETH": {
+        "symbol": "ETH",
+        "amount": 3,
+        "avgBuyPrice": 3000
+      },
+      "XAU": {
+        "symbol": "XAU",
+        "amount": 2,
+        "avgBuyPrice": 2300
+      }
+    },
+    "trades": [],
+    "xp": 1200,
+    "level": "Explorer",
+    "completedQuizzes": [],
+    "createdAt": "2026-11-05T14:34:11.417Z",
+    "lastActiveAt": "2026-11-05T14:34:11.420Z"
+  }
+}

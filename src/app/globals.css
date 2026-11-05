@@ -13,15 +13,15 @@
   --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
 
-  /* Color System Core Hex Values */
-  --valixen-violet-hex: #8B5CF6;
-  --valixen-violet-light: #A78BFA;
-  --valixen-violet-dark: #6D28D9;
-  --valixen-ice-hex: #00F0FF;
-  --valixen-ice-light: #38BDF8;
-  --valixen-obsidian-hex: #07090E;
-  --valixen-surface-hex: #0E121B;
-  --valixen-elevated-hex: #141A26;
+  /* Color System Core Hex Values - VELTRON Bespoke Royal Luxury Standard */
+  --valixen-violet-hex: #C6A477;
+  --valixen-violet-light: #DFC198;
+  --valixen-violet-dark: #96764D;
+  --valixen-ice-hex: #FAF7F1;
+  --valixen-ice-light: #FFFFFF;
+  --valixen-obsidian-hex: #120A08;
+  --valixen-surface-hex: #1A110E;
+  --valixen-elevated-hex: #221613;
 
   /* Telemetry Status Colors */
   --telemetry-profit: #00E599;

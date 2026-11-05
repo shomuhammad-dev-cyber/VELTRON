@@ -193,24 +193,24 @@ export default function EducationHubPage() {
       {/* 2. Main Hero Section */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <div className="relative rounded-3xl p-8 sm:p-10 overflow-hidden border border-[#C6A477]/30 bg-gradient-to-br from-[#481B24]/40 via-[#170F0D] to-[#090706] shadow-2xl">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-valixen-violet/15 rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-valixen-ice/10 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#C6A477]/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-[#54252D]/20 rounded-full blur-[100px] pointer-events-none" />
 
           <div className="relative z-10 max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-valixen-ice/10 border border-valixen-ice/30 text-[11px] font-mono text-valixen-ice tracking-wider uppercase">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#54252D]/40 border border-[#C6A477]/30 text-[11px] font-mono text-[#C6A477] tracking-wider uppercase">
               <Sparkles className="w-3.5 h-3.5" />
-              Institutional Literacy & Quantitative Curriculum
+              Institutsional Moliya & Kripto Savodxonligi
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-display font-extrabold text-white tracking-tight leading-tight">
-              Master Modern Finance, <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-valixen-ice via-valixen-violet to-purple-400">
-                Sovereign Reserves & Web3
+            <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#FAF7F1] tracking-tight leading-tight">
+              Zamonaviy Moliyani O‘rganing, <br />
+              <span className="text-[#C6A477]">
+                Kapital Boshqaruvi & Zaxira Tizimi
               </span>
             </h1>
 
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-light">
-              Interactive lessons verified against international Basel III frameworks, Central Bank of Uzbekistan (CBU) monetary standards, and modern algorithmic portfolio mechanics. Complete quizzes to earn verifiable certification.
+            <p className="text-sm sm:text-base text-[#C7BAA7] leading-relaxed font-light">
+              Xalqaro Basel III me’yorlari, O‘zbekiston Respublikasi Markaziy Banki (MB) standartlari va zamonaviy algoritmik savdo amaliyotlari. Darslarni tamomlab xalqaro sertifikatga ega bo‘ling.
             </p>
 
             {/* Quick Metrics Ribbon */}
