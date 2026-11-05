@@ -1,0 +1,597 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==============================================================================
+   VELTRON FINTECH PLATFORM - DESIGN SYSTEM GLOBAL TOKENS
+   Visual Aesthetic: Futuristic AI Finance, Dark Cinematic, Titanium Glass
+   ============================================================================== */
+
+:root {
+  /* Typography Scale Fonts */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  /* Color System Core Hex Values */
+  --valixen-violet-hex: #8B5CF6;
+  --valixen-violet-light: #A78BFA;
+  --valixen-violet-dark: #6D28D9;
+  --valixen-ice-hex: #00F0FF;
+  --valixen-ice-light: #38BDF8;
+  --valixen-obsidian-hex: #07090E;
+  --valixen-surface-hex: #0E121B;
+  --valixen-elevated-hex: #141A26;
+
+  /* Telemetry Status Colors */
+  --telemetry-profit: #00E599;
+  --telemetry-risk: #FF3366;
+  --telemetry-amber: #F59E0B;
+  --telemetry-info: #38BDF8;
+
+  /* Cinematic Animation Timing Functions */
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-natural: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-cinematic: 450ms;
+}
+
+@layer base {
+  * {
+    border-color: rgba(180, 154, 114, 0.2);
+  }
+
+  body {
+    @apply antialiased overflow-x-hidden selection:bg-[#B49A72]/30 selection:text-white font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+    background-color: #241512;
+    color: #E9DFCE;
+  }
+
+  /* Classical Milanese Serif Headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', 'Cormorant Garamond', Didot, 'Times New Roman', Georgia, serif;
+    color: #FAF7F2;
+    letter-spacing: -0.015em;
+  }
+
+  /* Financial numerical displays with tabular monospace alignments */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Custom high-performance dark scrollbars with Italian Walnut & Brass accent */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #241512;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #34302C;
+    border: 1px solid rgba(180, 154, 114, 0.3);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #B49A72;
+  }
+}
+
+@layer components {
+  /* ============================================================================
+     REUSABLE ITALIAN ELEGANCE ARCHITECTURAL PANELS
+     ============================================================================ */
+  .glass-panel {
+    background: linear-gradient(145deg, rgba(42, 27, 23, 0.88) 0%, rgba(26, 16, 14, 0.96) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(180, 154, 114, 0.22);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(233, 223, 206, 0.08);
+    border-radius: 0.875rem;
+    position: relative;
+  }
+
+  .glass-panel-elevated {
+    background: linear-gradient(145deg, rgba(48, 30, 26, 0.92) 0%, rgba(28, 17, 15, 0.98) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(180, 154, 114, 0.35);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(233, 223, 206, 0.12);
+    border-radius: 1rem;
+    position: relative;
+  }
+
+  .glass-panel-interactive {
+    @apply transition-all duration-300;
+    transition-timing-function: var(--ease-cinematic);
+  }
+  .glass-panel-interactive:hover {
+    border-color: rgba(180, 154, 114, 0.5);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 25px rgba(180, 154, 114, 0.12), inset 0 1px 0 rgba(233, 223, 206, 0.15);
+    transform: translateY(-2px);
+  }
+  .glass-panel-interactive:hover {
+    border-color: rgba(255, 215, 0, 0.85);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px -5px rgba(212, 175, 55, 0.45), inset 0 1px 0 rgba(255, 215, 0, 0.5);
+    transform: translateY(-2px);
+  }
+
+  /* Specular Highlight along top edge in gold */
+  .glass-specular-edge {
+    position: relative;
+  }
+  .glass-specular-edge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.6) 50%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* Prismatic highlight border */
+  .prism-border {
+    position: relative;
+  }
+  .prism-border::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(139, 92, 246, 0.4));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@layer utilities {
+  .text-glow-violet {
+    text-shadow: 0 0 20px rgba(139, 92, 246, 0.65);
+  }
+  .text-glow-ice {
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.65);
+  }
+  .text-glow-profit {
+    text-shadow: 0 0 20px rgba(0, 229, 153, 0.6);
+  }
+  .text-glow-risk {
+    text-shadow: 0 0 20px rgba(255, 51, 102, 0.6);
+  }
+  
+  .metallic-sheen {
+    background: linear-gradient(180deg, #FFFFFF 0%, #CBD5E1 50%, #64748B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .neon-sheen {
+    background: linear-gradient(135deg, #00F0FF 0%, #A78BFA 50%, #C084FC 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ============================================================================
+     CROCODILE LEATHER & PURE WARM GOLD LUXURY STYLING TOKENS
+     ============================================================================ */
+  .bg-croc-leather {
+    background-image: 
+      radial-gradient(circle at 50% 20%, rgba(212, 175, 55, 0.1) 0%, rgba(4, 24, 16, 0.75) 45%, rgba(2, 10, 7, 0.97) 90%),
+      url('/images/croc-leather-green.png');
+    background-size: cover, 700px auto;
+    background-repeat: no-repeat, repeat;
+    background-blend-mode: overlay, normal;
+  }
+
+  .croc-badge {
+    background-image: 
+      linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(4, 24, 16, 0.9) 100%),
+      url('/images/croc-leather-green.png');
+    background-size: cover;
+    background-blend-mode: overlay;
+    border: 1px solid rgba(212, 175, 55, 0.65);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.35), inset 0 0 8px rgba(212, 175, 55, 0.15);
+    animation: gold-glow-burn 3.5s infinite ease-in-out;
+  }
+
+  .croc-card {
+    background: #1A0F0D;
+    border: 1px solid rgba(180, 154, 114, 0.35);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    color: #E9DFCE;
+  }
+
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #FAF7F2 0%, #D4C09E 40%, #B49A72 75%, #8C7456 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gold-solid {
+    color: #FAF7F2;
+  }
+
+  .text-gold-subtle {
+    color: #B49A72;
+  }
+
+  /* Universal luxury Italian text tones */
+  p, .text-slate-300, .text-slate-400 {
+    color: #E9DFCE;
+  }
+  .text-slate-500 {
+    color: #B49A72;
+  }
+
+  /* Subtle, restrained Antique Gold Border */
+  .electric-border, .gold-border {
+    border-color: rgba(180, 154, 114, 0.45);
+  }
+
+  .electric-glow, .gold-glow {
+    filter: drop-shadow(0 0 6px rgba(180, 154, 114, 0.3));
+  }
+
+  .electric-arc-line {
+    background: linear-gradient(90deg, transparent 0%, rgba(180, 154, 114, 0.2) 20%, rgba(180, 154, 114, 0.8) 50%, rgba(180, 154, 114, 0.2) 80%, transparent 100%);
+  }
+
+  .ease-cinematic {
+    transition-timing-function: var(--ease-cinematic);
+  }
+  .ease-natural {
+    transition-timing-function: var(--ease-natural);
+  }
+
+  /* ============================================================================
+     ITALIAN ELEGANCE / CONTEMPORARY CLASSIC LUXURY DESIGN SYSTEM
+     Espresso Brown (#241512), Deep Burgundy (#501E27), Warm Ivory (#E9DFCE),
+     Antique Gold (#B49A72), Charcoal (#34302C)
+     ============================================================================ */
+  .font-italian-serif {
+    font-family: 'Playfair Display', 'Cormorant Garamond', Didot, 'Times New Roman', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+
+  .italian-shell {
+    background-color: #241512;
+    color: #E9DFCE;
+  }
+
+  /* Italian Travertine / Calacatta Vein Texture */
+  .italian-marble {
+    background: 
+      radial-gradient(ellipse 90% 60% at 50% 10%, rgba(180, 154, 114, 0.08) 0%, rgba(36, 21, 18, 0.85) 60%, #1A0F0D 100%),
+      linear-gradient(135deg, rgba(80, 30, 39, 0.15) 0%, transparent 50%, rgba(180, 154, 114, 0.1) 100%);
+    position: relative;
+  }
+
+  /* Walnut Boiserie Architectural Texture */
+  .italian-walnut {
+    background: 
+      linear-gradient(180deg, rgba(36, 21, 18, 0.94) 0%, rgba(22, 13, 11, 0.98) 100%),
+      repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(180, 154, 114, 0.03) 49px, rgba(180, 154, 114, 0.03) 50px);
+  }
+
+  /* Luxury Architectural Cards with Hairline Antique Brass Borders */
+  .italian-card {
+    background: linear-gradient(145deg, rgba(42, 27, 23, 0.85) 0%, rgba(26, 16, 14, 0.95) 100%);
+    border: 1px solid rgba(180, 154, 114, 0.22);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(233, 223, 206, 0.08);
+    border-radius: 0.875rem;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .italian-card:hover {
+    border-color: rgba(180, 154, 114, 0.45);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 25px rgba(180, 154, 114, 0.12), inset 0 1px 0 rgba(233, 223, 206, 0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Warm Ivory Luxury Card */
+  .italian-card-ivory {
+    background: linear-gradient(145deg, #FAF7F2 0%, #E9DFCE 100%);
+    border: 1px solid rgba(180, 154, 114, 0.35);
+    color: #241512;
+    box-shadow: 0 16px 40px rgba(15, 9, 8, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border-radius: 0.875rem;
+  }
+
+  /* Burgundy Velvet Accent Panel */
+  .italian-card-burgundy {
+    background: linear-gradient(145deg, rgba(80, 30, 39, 0.9) 0%, rgba(45, 16, 22, 0.95) 100%);
+    border: 1px solid rgba(180, 154, 114, 0.3);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(233, 223, 206, 0.12);
+    border-radius: 0.875rem;
+  }
+
+  /* Italian Hairline Brass Borders */
+  .italian-hairline {
+    border: 1px solid rgba(180, 154, 114, 0.22);
+  }
+
+  /* Antique Brass Button */
+  .italian-btn-gold {
+    background: linear-gradient(135deg, #C5AB85 0%, #B49A72 50%, #9F8259 100%);
+    color: #1A0F0D;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(233, 223, 206, 0.4);
+    box-shadow: 0 4px 18px rgba(180, 154, 114, 0.25);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .italian-btn-gold:hover {
+    background: linear-gradient(135deg, #D6BD99 0%, #C5AB85 50%, #B49A72 100%);
+    box-shadow: 0 6px 24px rgba(180, 154, 114, 0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Deep Burgundy Button */
+  .italian-btn-burgundy {
+    background: linear-gradient(135deg, #5E242E 0%, #501E27 50%, #3F161E 100%);
+    color: #E9DFCE;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(180, 154, 114, 0.35);
+    box-shadow: 0 4px 18px rgba(80, 30, 39, 0.35);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .italian-btn-burgundy:hover {
+    background: linear-gradient(135deg, #6F2C38 0%, #5E242E 50%, #501E27 100%);
+    border-color: rgba(180, 154, 114, 0.55);
+    box-shadow: 0 6px 24px rgba(80, 30, 39, 0.5);
+    transform: translateY(-1px);
+  }
+
+  /* Warm Ivory Button */
+  .italian-btn-ivory {
+    background: #E9DFCE;
+    color: #241512;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    border: 1px solid rgba(180, 154, 114, 0.4);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .italian-btn-ivory:hover {
+    background: #FAF7F2;
+    box-shadow: 0 4px 20px rgba(233, 223, 206, 0.3);
+    transform: translateY(-1px);
+  }
+
+  /* Subtle Brass Hairline Rule */
+  .italian-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(180, 154, 114, 0.3) 25%, rgba(180, 154, 114, 0.6) 50%, rgba(180, 154, 114, 0.3) 75%, transparent 100%);
+  }
+
+  /* ============================================================================
+     BESPOKE ROYAL LUXURY DESIGN SYSTEM (ROLLS-ROYCE CULLINAN MANSORY 1 OF 1)
+     Deep Espresso, Royal Burgundy, Warm Ivory, Champagne Gold, Walnut Boiserie
+     ============================================================================ */
+  .font-bespoke-serif {
+    font-family: 'Playfair Display', 'Cormorant Garamond', Didot, 'Times New Roman', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+
+  /* Core Bespoke Card - Deep Espresso #211714 with subtle satin sheen & Champagne hairline */
+  .bespoke-card {
+    background: linear-gradient(155deg, rgba(38, 26, 23, 0.95) 0%, rgba(26, 17, 15, 0.98) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(193, 164, 119, 0.24);
+    box-shadow: 0 20px 50px rgba(12, 8, 7, 0.6), inset 0 1px 0 rgba(240, 232, 220, 0.08);
+    border-radius: 1rem;
+    position: relative;
+  }
+  .bespoke-card:hover {
+    border-color: rgba(193, 164, 119, 0.42);
+    box-shadow: 0 24px 60px rgba(12, 8, 7, 0.75), inset 0 1px 0 rgba(240, 232, 220, 0.15);
+  }
+
+  /* Royal Burgundy Satin Accent Card #54252D */
+  .bespoke-card-burgundy {
+    background: linear-gradient(155deg, rgba(84, 37, 45, 0.92) 0%, rgba(52, 20, 26, 0.98) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(193, 164, 119, 0.32);
+    box-shadow: 0 20px 50px rgba(28, 10, 14, 0.55), inset 0 1px 0 rgba(240, 232, 220, 0.12);
+    border-radius: 1rem;
+    position: relative;
+  }
+
+  /* Warm Ivory Leather / Calacatta Card #F0E8DC with Dark Charcoal text */
+  .bespoke-card-ivory {
+    background: linear-gradient(160deg, #FAF7F1 0%, #F0E8DC 55%, #E5DACB 100%);
+    border: 1px solid rgba(193, 164, 119, 0.4);
+    color: #211714;
+    box-shadow: 0 20px 50px rgba(15, 9, 8, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border-radius: 1rem;
+    position: relative;
+  }
+
+  /* Hand-Finished Walnut Boiserie #493329 */
+  .bespoke-card-walnut {
+    background: linear-gradient(145deg, #493329 0%, #35231B 60%, #261812 100%);
+    border: 1px solid rgba(193, 164, 119, 0.3);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(240, 232, 220, 0.1);
+    border-radius: 1rem;
+    position: relative;
+  }
+
+  /* Hand-Stitched Leather Piping / Coachbuilding Detail */
+  .bespoke-card-stitched {
+    position: relative;
+  }
+  .bespoke-card-stitched::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px dashed rgba(193, 164, 119, 0.28);
+    border-radius: calc(1rem - 5px);
+    pointer-events: none;
+  }
+
+  /* Twin Coachline Divider (Mansory / Rolls-Royce trademark signature) */
+  .bespoke-coachline {
+    position: relative;
+    height: 3px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .bespoke-coachline::before,
+  .bespoke-coachline::after {
+    content: '';
+    display: block;
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent 0%, rgba(193, 164, 119, 0.15) 15%, rgba(193, 164, 119, 0.55) 50%, rgba(193, 164, 119, 0.15) 85%, transparent 100%);
+  }
+
+  /* Champagne Gold Button #C1A477 */
+  .bespoke-btn-champagne {
+    background: linear-gradient(135deg, #D4BC93 0%, #C1A477 50%, #A98C5E 100%);
+    color: #1A110E;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(250, 247, 241, 0.45);
+    box-shadow: 0 4px 20px rgba(193, 164, 119, 0.3);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .bespoke-btn-champagne:hover {
+    background: linear-gradient(135deg, #E2CEAC 0%, #D4BC93 50%, #C1A477 100%);
+    box-shadow: 0 6px 26px rgba(193, 164, 119, 0.45);
+    transform: translateY(-1px);
+  }
+
+  /* Royal Burgundy Button #54252D */
+  .bespoke-btn-burgundy {
+    background: linear-gradient(135deg, #6B2E37 0%, #54252D 50%, #3D181E 100%);
+    color: #F0E8DC;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(193, 164, 119, 0.38);
+    box-shadow: 0 4px 20px rgba(84, 37, 45, 0.4);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .bespoke-btn-burgundy:hover {
+    background: linear-gradient(135deg, #7E3642 0%, #6B2E37 50%, #54252D 100%);
+    border-color: rgba(193, 164, 119, 0.6);
+    box-shadow: 0 6px 26px rgba(84, 37, 45, 0.55);
+    transform: translateY(-1px);
+  }
+
+  /* Warm Ivory Button #F0E8DC */
+  .bespoke-btn-ivory {
+    background: #F0E8DC;
+    color: #211714;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    border: 1px solid rgba(193, 164, 119, 0.45);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .bespoke-btn-ivory:hover {
+    background: #FAF7F1;
+    box-shadow: 0 4px 22px rgba(240, 232, 220, 0.35);
+    transform: translateY(-1px);
+  }
+
+  /* Subtle Champagne Hairline Border */
+  .bespoke-hairline {
+    border: 1px solid rgba(193, 164, 119, 0.22);
+  }
+
+  /* Completely suppress Next.js dev tools floating badge [ N ] */
+  #__next-build-watcher,
+  [data-nextjs-toast],
+  nextjs-portal,
+  [data-nextjs-dev-tools-indicator],
+  div[data-nextjs-dev-overlay] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* ============================================================================
+     VELTRON ONE OF ONE BESPOKE LUXURY DIGITAL EXPERIENCE
+     Palette: Obsidian Black (#090706), Deep Espresso (#170F0D), Burgundy Velvet (#481B24),
+              Royal Wine (#642B35), Champagne Gold (#C6A477), Antique Gold (#96764D),
+              Warm Ivory (#E9DDCA), Marble White (#D8D0C5), Soft Charcoal (#292321)
+     ============================================================================ */
+  .font-cormorant {
+    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+
+  .font-manrope {
+    font-family: 'Manrope', 'Plus Jakarta Sans', -apple-system, sans-serif;
+  }
+
+  .oneofone-panel {
+    background: linear-gradient(155deg, rgba(23, 15, 13, 0.94) 0%, rgba(9, 7, 6, 0.98) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(198, 164, 119, 0.26);
+    box-shadow: 0 24px 60px rgba(9, 7, 6, 0.8), inset 0 1px 0 rgba(233, 221, 202, 0.08);
+    border-radius: 1rem;
+    position: relative;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .oneofone-panel:hover {
+    border-color: rgba(198, 164, 119, 0.45);
+    box-shadow: 0 30px 70px rgba(9, 7, 6, 0.9), inset 0 1px 0 rgba(233, 221, 202, 0.15);
+  }
+
+  .oneofone-panel-burgundy {
+    background: linear-gradient(155deg, rgba(72, 27, 36, 0.94) 0%, rgba(35, 12, 17, 0.98) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(198, 164, 119, 0.35);
+    box-shadow: 0 24px 60px rgba(32, 9, 15, 0.65), inset 0 1px 0 rgba(233, 221, 202, 0.12);
+    border-radius: 1rem;
+    position: relative;
+  }
+
+  .oneofone-btn-gold {
+    background: linear-gradient(135deg, #DECCAE 0%, #C6A477 50%, #96764D 100%);
+    color: #090706;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(233, 221, 202, 0.45);
+    box-shadow: 0 4px 20px rgba(198, 164, 119, 0.3);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .oneofone-btn-gold:hover {
+    background: linear-gradient(135deg, #E8D9C0 0%, #DECCAE 50%, #C6A477 100%);
+    box-shadow: 0 6px 28px rgba(198, 164, 119, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .oneofone-btn-burgundy {
+    background: linear-gradient(135deg, #642B35 0%, #481B24 50%, #2D0F15 100%);
+    color: #E9DDCA;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(198, 164, 119, 0.38);
+    box-shadow: 0 4px 20px rgba(72, 27, 36, 0.4);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .oneofone-btn-burgundy:hover {
+    background: linear-gradient(135deg, #7A3542 0%, #642B35 50%, #481B24 100%);
+    border-color: rgba(198, 164, 119, 0.6);
+    box-shadow: 0 6px 28px rgba(72, 27, 36, 0.55);
+    transform: translateY(-1px);
+  }
+
+  .oneofone-gold-border {
+    border: 1px solid rgba(198, 164, 119, 0.26);
+  }
+}

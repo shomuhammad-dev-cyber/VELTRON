@@ -1,0 +1,1173 @@
+// ==============================================================================
+// VALIXEN FINTECH PLATFORM - PRISMA ORM SCHEMA
+// PostgreSQL Production Architecture
+// ==============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------------------------------------
+// ENUMS
+// ------------------------------------------------------------------------------
+
+enum UserRole {
+  USER
+  TRADER
+  VIP_CLIENT
+  INSTITUTIONAL
+  COMPLIANCE_OFFICER
+  SYSTEM_ADMIN
+}
+
+enum KycStatus {
+  UNVERIFIED
+  TIER_1_PENDING
+  TIER_1_VERIFIED
+  TIER_2_VERIFIED
+  REJECTED
+}
+
+enum AccountType {
+  SMART_CHECKING
+  HIGH_YIELD_VAULT
+  CRYPTO_CUSTODY_WALLET
+  MARGIN_TRADING
+  VIRTUAL_SIMULATION
+  CONNECTED_BANK
+  CONNECTED_CARD
+}
+
+enum AccountStatus {
+  ACTIVE
+  FROZEN
+  SUSPENDED
+  RESTRICTED
+  CLOSED
+}
+
+enum TransactionType {
+  FIAT_DEPOSIT
+  FIAT_WITHDRAWAL
+  CRYPTO_RECEIVE
+  CRYPTO_SEND
+  INTERNAL_TRANSFER
+  TRADE_EXECUTION
+  STAKING_YIELD
+  SYSTEM_FEE
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  CONFIRMED
+  COMPLETED
+  FAILED
+  CANCELLED
+  REVERSED
+}
+
+enum AssetClass {
+  FIAT
+  CRYPTO
+  EQUITY
+  COMMODITY
+  FX_PAIR
+  INDEX
+}
+
+enum TradeType {
+  BUY
+  SELL
+}
+
+enum TradeOrderType {
+  MARKET
+  LIMIT
+  STOP_MARKET
+  STOP_LIMIT
+  TRAILING_STOP
+}
+
+enum TradeStatus {
+  PENDING
+  OPEN
+  FILLED
+  PARTIALLY_FILLED
+  CANCELLED
+  REJECTED
+  EXPIRED
+}
+
+enum SubscriptionTier {
+  EXPLORER
+  APEX_PRO
+  INSTITUTIONAL_ALPHA
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  TRIALING
+  CANCELLED
+  EXPIRED
+}
+
+enum NotificationType {
+  SECURITY_ALERT
+  PRICE_TRIGGER
+  ORDER_FILLED
+  DEPOSIT_CONFIRMED
+  WITHDRAWAL_ALERT
+  SYSTEM_UPDATE
+  EDUCATIONAL_RECOMMENDATION
+}
+
+enum AuditAction {
+  USER_LOGIN
+  USER_LOGOUT
+  PASSWORD_RESET_REQUEST
+  PASSWORD_RESET_SUCCESS
+  TWO_FACTOR_ENABLED
+  TWO_FACTOR_DISABLED
+  KYC_SUBMITTED
+  API_KEY_CREATED
+  API_KEY_REVOKED
+  ACCOUNT_FROZEN
+  WITHDRAWAL_REQUESTED
+  HIGH_VALUE_TRADE_EXECUTED
+}
+
+// ------------------------------------------------------------------------------
+// CORE IDENTITY & USER MODELS
+// ------------------------------------------------------------------------------
+
+model User {
+  id                    String              @id @default(uuid())
+  email                 String              @unique
+  passwordHash          String?
+  role                  UserRole            @default(USER)
+  isTwoFactorEnabled    Boolean             @default(false)
+  twoFactorSecret       String?
+  emailVerified         DateTime?
+  isActive              Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  deletedAt             DateTime?
+
+  profile               UserProfile?
+  accounts              Account[]
+  sessions              Session[]
+  financialAccounts     FinancialAccount[]
+  portfolios            Portfolio[]
+  watchlists            Watchlist[]
+  notifications         Notification[]
+  auditLogs             AuditLog[]
+  subscriptions         Subscription[]
+  virtualTrades         VirtualTrade[]
+  aiConversations       AiConversation[]
+  courseProgress        UserCourseProgress[]
+  newsBookmarks         NewsBookmark[]
+  savingsGoals          SavingsGoal[]
+  challengeProgress     UserChallengeProgress[]
+  achievements          UserAchievement[]
+  communityPosts        CommunityPost[]
+  communityComments     CommunityComment[]
+  financialReports      FinancialReportRecord[]
+  gamification          UserGamification?
+  xpLogs                UserXpLog[]
+  telegramLinkTokens    TelegramLinkToken[]
+  telegramPreferences   TelegramNotificationPreference?
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model UserProfile {
+  id               String      @id @default(uuid())
+  userId           String      @unique
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName        String?
+  lastName         String?
+  displayName      String?
+  avatarUrl        String?
+  phoneNumber      String?
+  countryCode      String?
+  preferredCurrency String     @default("USD")
+  language         String      @default("en")
+  kycStatus        KycStatus   @default(UNVERIFIED)
+  kycVerifiedAt    DateTime?
+  riskToleranceScore Int       @default(50) // Scale 0 (Risk averse) to 100 (Aggressive)
+  telegramUserId         String?     @unique
+  telegramChatId         String?
+  telegramUsername       String?
+  isTelegramLinked       Boolean     @default(false)
+  telegramLinkedAt       DateTime?
+  telegramNotifyEnabled  Boolean     @default(true)
+  telegramNotifyMarket   Boolean     @default(true)
+  telegramNotifySecurity Boolean     @default(true)
+  telegramNotifyReports  Boolean     @default(true)
+  telegramNotifyEducation Boolean    @default(true)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@map("user_profiles")
+}
+
+model Session {
+  id           String    @id @default(uuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionToken String    @unique
+  ipAddress    String?
+  userAgent    String?
+  isValid      Boolean   @default(true)
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@map("sessions")
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("oauth_accounts")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@map("password_reset_tokens")
+}
+
+// ------------------------------------------------------------------------------
+// SMART BANKING & FINANCIAL ACCOUNTS
+// ------------------------------------------------------------------------------
+
+model FinancialAccount {
+  id               String          @id @default(uuid())
+  userId           String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountNumber    String          @unique
+  accountName      String
+  type             AccountType     @default(SMART_CHECKING)
+  status           AccountStatus   @default(ACTIVE)
+  currency         String          @default("USD")
+  balance          Decimal         @default(0.00000000) @db.Decimal(28, 8)
+  availableBalance Decimal         @default(0.00000000) @db.Decimal(28, 8)
+  lockedBalance    Decimal         @default(0.00000000) @db.Decimal(28, 8)
+  iban             String?
+  routingNumber    String?
+  depositAddress   String?         // For crypto custody vaults
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  outgoingTransactions Transaction[] @relation("SourceAccount")
+  incomingTransactions Transaction[] @relation("DestinationAccount")
+
+  @@index([userId])
+  @@index([accountNumber])
+  @@index([type, status])
+  @@map("financial_accounts")
+}
+
+model Transaction {
+  id                     String            @id @default(uuid())
+  sourceAccountId        String?
+  destinationAccountId   String?
+  sourceAccount          FinancialAccount? @relation("SourceAccount", fields: [sourceAccountId], references: [id], onDelete: SetNull)
+  destinationAccount     FinancialAccount? @relation("DestinationAccount", fields: [destinationAccountId], references: [id], onDelete: SetNull)
+  type                   TransactionType
+  status                 TransactionStatus @default(PENDING)
+  amount                 Decimal           @db.Decimal(28, 8)
+  fee                    Decimal           @default(0.00000000) @db.Decimal(28, 8)
+  currency               String
+  exchangeRate           Decimal?          @db.Decimal(18, 8)
+  referenceNumber        String            @unique
+  blockchainTxHash       String?
+  counterparty           String?
+  description            String?
+  metadataJson           Json?
+  createdAt              DateTime          @default(now())
+  settledAt              DateTime?
+
+  @@index([sourceAccountId])
+  @@index([destinationAccountId])
+  @@index([referenceNumber])
+  @@index([type, status])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+// ------------------------------------------------------------------------------
+// PORTFOLIOS, WEALTH ASSETS & HOLDINGS
+// ------------------------------------------------------------------------------
+
+model Portfolio {
+  id             String             @id @default(uuid())
+  userId         String
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  isVirtual      Boolean            @default(false)
+  baseCurrency   String             @default("USD")
+  totalValue     Decimal            @default(0.00000000) @db.Decimal(28, 8)
+  cashBalance    Decimal            @default(100000.00000000) @db.Decimal(28, 8)
+  realizedPnl    Decimal            @default(0.00000000) @db.Decimal(28, 8)
+  unrealizedPnl  Decimal            @default(0.00000000) @db.Decimal(28, 8)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  holdings       PortfolioHolding[]
+  virtualTrades  VirtualTrade[]
+
+  @@index([userId])
+  @@index([isVirtual])
+  @@map("portfolios")
+}
+
+model PortfolioHolding {
+  id              String      @id @default(uuid())
+  portfolioId     String
+  portfolio       Portfolio   @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  assetSymbol     String
+  assetName       String
+  assetClass      AssetClass
+  quantity        Decimal     @db.Decimal(28, 8)
+  averageCost     Decimal     @db.Decimal(28, 8)
+  currentPrice    Decimal     @db.Decimal(28, 8)
+  totalCost       Decimal     @db.Decimal(28, 8)
+  marketValue     Decimal     @db.Decimal(28, 8)
+  unrealizedPnl   Decimal     @db.Decimal(28, 8)
+  lastValuationAt DateTime    @default(now())
+
+  @@unique([portfolioId, assetSymbol])
+  @@index([portfolioId])
+  @@index([assetSymbol])
+  @@map("portfolio_holdings")
+}
+
+// ------------------------------------------------------------------------------
+// VIRTUAL TRADING & SIMULATION ENGINE
+// ------------------------------------------------------------------------------
+
+model VirtualTrade {
+  id              String          @id @default(uuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  portfolioId     String
+  portfolio       Portfolio       @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  symbol          String
+  assetClass      AssetClass
+  tradeType       TradeType
+  orderType       TradeOrderType  @default(MARKET)
+  quantity        Decimal         @db.Decimal(28, 8)
+  targetPrice     Decimal?        @db.Decimal(28, 8)
+  executionPrice  Decimal?        @db.Decimal(28, 8)
+  stopLossPrice   Decimal?        @db.Decimal(28, 8)
+  takeProfitPrice Decimal?        @db.Decimal(28, 8)
+  status          TradeStatus     @default(OPEN)
+  pnl             Decimal?        @db.Decimal(28, 8)
+  pnlPercentage   Decimal?        @db.Decimal(10, 4)
+  notes           String?
+  aiHypothesis    String?         // AI-driven trading suggestion reason
+  openedAt        DateTime        @default(now())
+  closedAt        DateTime?
+
+  @@index([userId])
+  @@index([portfolioId])
+  @@index([symbol])
+  @@index([status])
+  @@map("virtual_trades")
+}
+
+// ------------------------------------------------------------------------------
+// WATCHLISTS & MARKET TELEMETRY
+// ------------------------------------------------------------------------------
+
+model Watchlist {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  isDefault   Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  items       WatchlistItem[]
+
+  @@index([userId])
+  @@map("watchlists")
+}
+
+model WatchlistItem {
+  id              String      @id @default(uuid())
+  watchlistId     String
+  watchlist       Watchlist   @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  symbol          String
+  assetClass      AssetClass
+  targetPriceAlert Decimal?   @db.Decimal(28, 8)
+  notes           String?
+  addedAt         DateTime    @default(now())
+
+  @@unique([watchlistId, symbol])
+  @@index([watchlistId])
+  @@index([symbol])
+  @@map("watchlist_items")
+}
+
+// ------------------------------------------------------------------------------
+// NOTIFICATIONS & AUDIT LOGS
+// ------------------------------------------------------------------------------
+
+model Notification {
+  id          String            @id @default(uuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  title       String
+  message     String
+  actionUrl   String?
+  isRead      Boolean           @default(false)
+  readAt      DateTime?
+  metadataJson Json?
+  createdAt   DateTime          @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id             String       @id @default(uuid())
+  userId         String?
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action         AuditAction
+  ipAddress      String?
+  userAgent      String?
+  resourceEntity String?      // e.g. "FinancialAccount", "VirtualTrade"
+  resourceId     String?
+  detailsJson    Json?
+  timestamp      DateTime     @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([resourceEntity, resourceId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+// ------------------------------------------------------------------------------
+// SUBSCRIPTIONS & COMMERCIAL TIERS
+// ------------------------------------------------------------------------------
+
+model Subscription {
+  id                 String             @id @default(uuid())
+  userId             String
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier               SubscriptionTier   @default(EXPLORER)
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart DateTime           @default(now())
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean            @default(false)
+  paymentProviderId  String?            // Stripe / payment gateway customer or subscription ID
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([tier, status])
+  @@map("subscriptions")
+}
+
+// ------------------------------------------------------------------------------
+// AI ASSISTANT CONVERSATIONS & FINANCIAL ADVISORY
+// ------------------------------------------------------------------------------
+
+model AiConversation {
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String      @default("Financial Advisory")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  messages  AiMessage[]
+
+  @@index([userId])
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id                 String         @id @default(uuid())
+  conversationId     String
+  conversation       AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role               String         // "user" | "assistant" | "system"
+  content            String         @db.Text
+  financialCitations Json?          // Citations of balances, CBU rates, or asset prices
+  createdAt          DateTime       @default(now())
+
+  @@index([conversationId])
+  @@map("ai_messages")
+}
+
+// ------------------------------------------------------------------------------
+// FINANCIAL EDUCATION & LITERACY ACADEMY
+// ------------------------------------------------------------------------------
+
+model Course {
+  id          String         @id @default(uuid())
+  slug        String         @unique
+  title       String
+  description String         @db.Text
+  category    String         // BANKING_FUNDAMENTALS, BUDGETING, SAVING, CRYPTOCURRENCY, TRADING, INVESTMENT
+  level       String         // BEGINNER, INTERMEDIATE, ADVANCED
+  duration    String         // e.g. "45 min"
+  xpReward    Int            @default(150)
+  icon        String?
+  published   Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  lessons     CourseLesson[]
+  progress    UserCourseProgress[]
+
+  @@index([slug])
+  @@index([category])
+  @@map("education_courses")
+}
+
+model CourseLesson {
+  id               String   @id @default(uuid())
+  courseId         String
+  course           Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  order            Int      @default(1)
+  title            String
+  content          String   @db.Text
+  keyTakeawaysJson Json?
+  quizJson         Json?    // Array of { question, options, correctIndex, explanation }
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([courseId, order])
+  @@map("education_lessons")
+}
+
+model UserCourseProgress {
+  id                   String    @id @default(uuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId             String
+  course               Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  completedLessonsJson Json?     // Array of completed lesson IDs
+  quizScoresJson       Json?     // Map of lessonId -> score
+  isCompleted          Boolean   @default(false)
+  completedAt          DateTime?
+  updatedAt            DateTime  @updatedAt
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@map("user_course_progress")
+}
+
+// ------------------------------------------------------------------------------
+// FINANCIAL NEWS & MARKET BULLETINS
+// ------------------------------------------------------------------------------
+
+model NewsArticle {
+  id              String         @id @default(uuid())
+  slug            String         @unique
+  title           String
+  summary         String         @db.Text
+  content         String         @db.Text
+  category        String         // GLOBAL_FINANCE, CRYPTO, CURRENCY_MARKETS, ECONOMIC_POLICY, AI_FINANCE
+  sourceName      String         // e.g. "Central Bank of Uzbekistan", "CoinDesk", "Reuters"
+  sourceUrl       String?
+  author          String?
+  publishedAt     DateTime       @default(now())
+  imageUrl        String?
+  tagsJson        Json?
+  readTimeMinutes Int            @default(4)
+  isFeatured      Boolean        @default(false)
+  published       Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  bookmarks       NewsBookmark[]
+
+  @@index([slug])
+  @@index([category])
+  @@index([publishedAt])
+  @@map("news_articles")
+}
+
+model NewsBookmark {
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  articleId String
+  article   NewsArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@unique([userId, articleId])
+  @@index([userId])
+  @@map("news_bookmarks")
+}
+
+// ------------------------------------------------------------------------------
+// PLATFORM ANNOUNCEMENTS & BROADCASTS
+// ------------------------------------------------------------------------------
+
+model PlatformAnnouncement {
+  id        String   @id @default(uuid())
+  title     String
+  message   String   @db.Text
+  type      String   @default("INFO") // INFO, MAINTENANCE, SECURITY, FEATURE
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("platform_announcements")
+}
+
+// ------------------------------------------------------------------------------
+// CENTRAL SECURITY OPERATIONS CENTER (SOC) & SIEM INCIDENTS
+// ------------------------------------------------------------------------------
+
+enum IncidentSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  INFO
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  CONTAINED
+  RESOLVED
+  FALSE_POSITIVE
+}
+
+model SecurityIncident {
+  id               String           @id @default(uuid())
+  incidentNumber   String           @unique // e.g. "INC-2026-0814"
+  title            String
+  description      String           @db.Text
+  severity         IncidentSeverity @default(MEDIUM)
+  status           IncidentStatus   @default(OPEN)
+  category         String           // AUTH_ATTACK, BRUTE_FORCE, PRIVILEGE_ABUSE, RATE_LIMIT, DATA_LEAK_ATTEMPT, INJECTION_ATTEMPT
+  assignedToEmail  String?
+  sourceIp         String?
+  affectedUserId   String?
+  affectedResource String?
+  rootCause        String?          @db.Text
+  resolutionNotes  String?          @db.Text
+  detectedAt       DateTime         @default(now())
+  resolvedAt       DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([severity, status])
+  @@index([detectedAt])
+  @@map("security_incidents")
+}
+
+model SecurityAlert {
+  id             String           @id @default(uuid())
+  title          String
+  eventType      String
+  severity       IncidentSeverity @default(MEDIUM)
+  sourceIp       String?
+  userId         String?
+  description    String           @db.Text
+  isAcknowledged Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+
+  @@index([severity, isAcknowledged])
+  @@index([createdAt])
+  @@map("security_alerts")
+}
+
+model DatabaseAuditLog {
+  id              String   @id @default(uuid())
+  timestamp       DateTime @default(now())
+  operation       String   // SELECT, INSERT, UPDATE, DELETE, MIGRATION
+  tableName       String
+  recordId        String?
+  actorId         String?
+  actorRole       String?
+  querySnippet    String?  @db.Text
+  executionTimeMs Float    @default(0.0)
+  ipAddress       String?
+  isSensitive     Boolean  @default(false)
+  hash            String
+
+  @@index([tableName, timestamp])
+  @@index([actorId])
+  @@map("database_audit_logs")
+}
+
+// ==============================================================================
+// ADVANCED INTERNATIONAL FINTECH MODULES (TIER 2 EXTENSION)
+// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// SMART SAVINGS GOALS
+// ------------------------------------------------------------------------------
+
+model SavingsGoal {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title             String
+  targetAmount      Decimal   @db.Decimal(28, 8)
+  currentAmount     Decimal   @default(0.00000000) @db.Decimal(28, 8)
+  currency          String    @default("USD")
+  category          String    // EMERGENCY_FUND, REAL_ESTATE, RETIREMENT, CRYPTO_RESERVE, EDUCATION, TRAVEL
+  targetDate        DateTime
+  autoSaveFrequency String    @default("MONTHLY") // DAILY, WEEKLY, MONTHLY, OFF
+  autoSaveAmount    Decimal   @default(0.00000000) @db.Decimal(28, 8)
+  isReached         Boolean   @default(false)
+  reachedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([category])
+  @@map("savings_goals")
+}
+
+// ------------------------------------------------------------------------------
+// ECONOMIC CALENDAR & MACRO RELEASES
+// ------------------------------------------------------------------------------
+
+enum EconomicImpact {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model EconomicEvent {
+  id          String         @id @default(uuid())
+  title       String
+  country     String
+  countryCode String         // US, EU, UZ, GB, JP, CN
+  date        DateTime
+  time        String         // e.g. "14:30 EST"
+  impact      EconomicImpact @default(MEDIUM)
+  period      String         // e.g. "Q3", "Oct", "Sep"
+  actual      String?
+  consensus   String?
+  previous    String?
+  unit        String?        // %, B, K, Index
+  description String?        @db.Text
+  source      String         // e.g. "US Bureau of Labor Statistics", "Federal Reserve", "CBU"
+  createdAt   DateTime       @default(now())
+
+  @@index([date, impact])
+  @@index([countryCode])
+  @@map("economic_events")
+}
+
+// ------------------------------------------------------------------------------
+// FINANCIAL EDUCATION CHALLENGES & GAMIFICATION
+// ------------------------------------------------------------------------------
+
+model EducationChallenge {
+  id           String                  @id @default(uuid())
+  slug         String                  @unique
+  title        String
+  description  String                  @db.Text
+  category     String                  // SAVINGS, TRADING, RISK_MANAGEMENT, DEBT_PAYOFF, QUANT
+  difficulty   String                  // BEGINNER, INTERMEDIATE, ADVANCED
+  durationDays Int                     @default(7)
+  xpReward     Int                     @default(300)
+  tasksJson    Json                    // Array of { id, order, title, description, xpReward }
+  badgeName    String
+  icon         String?
+  isLive       Boolean                 @default(true)
+  createdAt    DateTime                @default(now())
+
+  participants UserChallengeProgress[]
+
+  @@index([slug])
+  @@index([category])
+  @@map("education_challenges")
+}
+
+model UserChallengeProgress {
+  id                 String             @id @default(uuid())
+  userId             String
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId        String
+  challenge          EducationChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  completedTasksJson Json?              // Array of completed task IDs
+  progressPercent    Int                @default(0)
+  isCompleted        Boolean            @default(false)
+  startedAt          DateTime           @default(now())
+  completedAt        DateTime?
+  updatedAt          DateTime           @updatedAt
+
+  @@unique([userId, challengeId])
+  @@index([userId])
+  @@map("user_challenge_progress")
+}
+
+// ------------------------------------------------------------------------------
+// ACHIEVEMENT SYSTEM
+// ------------------------------------------------------------------------------
+
+enum AchievementTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+}
+
+model Achievement {
+  id          String            @id @default(uuid())
+  code        String            @unique // e.g. "FIRST_VIRTUAL_ORDER", "SAVINGS_MASTER"
+  title       String
+  description String
+  category    String            // TRADING, SAVING, EDUCATION, SECURITY, COMMUNITY
+  tier        AchievementTier   @default(BRONZE)
+  icon        String?
+  targetValue Int               @default(1)
+  xpReward    Int               @default(100)
+  createdAt   DateTime          @default(now())
+
+  userProgress UserAchievement[]
+
+  @@index([code])
+  @@index([category])
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId   String
+  achievement     Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  currentProgress Int         @default(0)
+  isUnlocked      Boolean     @default(false)
+  unlockedAt      DateTime?
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@map("user_achievements")
+}
+
+// ------------------------------------------------------------------------------
+// GLOBAL FINANCIAL COMMUNITY & VERIFIED SOCIAL TERMINAL
+// ------------------------------------------------------------------------------
+
+enum CommunitySentiment {
+  BULLISH
+  BEARISH
+  NEUTRAL
+}
+
+model CommunityPost {
+  id               String             @id @default(uuid())
+  userId           String
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authorName       String
+  authorRole       String             @default("TRADER")
+  title            String
+  content          String             @db.Text
+  category         String             // STRATEGY, TRADE_IDEA, MACRO_OUTLOOK, QUESTION, CRYPTO_ANALYSIS, FINANCIAL_LITERACY, INVESTING_FUNDAMENTALS
+  type             String             @default("DISCUSSION") // DISCUSSION or QUESTION
+  isAnswered       Boolean            @default(false)
+  acceptedAnswerId String?
+  moderationStatus String             @default("APPROVED") // APPROVED, FLAGGED, PENDING_REVIEW, REMOVED
+  moderationReason String?
+  reportCount      Int                @default(0)
+  assetSymbol      String?
+  tradeType        TradeType?
+  sentiment        CommunitySentiment @default(NEUTRAL)
+  upvotes          Int                @default(0)
+  commentsCount    Int                @default(0)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  comments         CommunityComment[]
+  reactions        CommunityReaction[]
+  bookmarks        CommunityBookmark[]
+  reports          CommunityReport[]
+
+  @@index([userId])
+  @@index([category])
+  @@index([type])
+  @@index([moderationStatus])
+  @@index([createdAt])
+  @@map("community_posts")
+}
+
+model CommunityComment {
+  id         String        @id @default(uuid())
+  postId     String
+  post       CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authorName String
+  content    String        @db.Text
+  createdAt  DateTime      @default(now())
+
+  @@index([postId])
+  @@index([userId])
+  @@map("community_comments")
+}
+
+model CommunityReaction {
+  id        String        @id @default(uuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  type      String        // INSIGHTFUL, BULLISH, HELPFUL, FIRE, UPVOTE
+  createdAt DateTime      @default(now())
+
+  @@unique([postId, userId, type])
+  @@index([postId])
+  @@map("community_reactions")
+}
+
+model CommunityBookmark {
+  id        String        @id @default(uuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime      @default(now())
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@map("community_bookmarks")
+}
+
+model CommunityReport {
+  id          String         @id @default(uuid())
+  postId      String?
+  post        CommunityPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId   String?
+  reporterId  String
+  reason      String         // PROFIT_GUARANTEE, MISLEADING, SPAM, PRIVATE_INFO, IMPERSONATION
+  details     String?        @db.Text
+  status      String         @default("PENDING") // PENDING, RESOLVED, DISMISSED
+  createdAt   DateTime       @default(now())
+
+  @@index([postId])
+  @@index([status])
+  @@map("community_reports")
+}
+
+// ------------------------------------------------------------------------------
+// ADVANCED FINANCIAL REPORTS & AUDIT TRAIL ARCHIVE
+// ------------------------------------------------------------------------------
+
+enum ReportType {
+  MONTHLY_STATEMENT
+  ANNUAL_WEALTH_TAX
+  PORTFOLIO_RISK_AUDIT
+  ESG_ASSET_DIVERSITY
+}
+
+model FinancialReportRecord {
+  id               String     @id @default(uuid())
+  userId           String
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reportType       ReportType
+  period           String     // e.g. "October 2026", "FY 2026"
+  currency         String     @default("USD")
+  summaryJson      Json
+  verificationHash String
+  generatedAt      DateTime   @default(now())
+
+  @@index([userId, reportType])
+  @@index([generatedAt])
+  @@map("financial_report_records")
+}
+
+// ------------------------------------------------------------------------------
+// ADVANCED GAMIFICATION, LEVEL PROGRESSION & GLOBAL LEADERBOARDS
+// ------------------------------------------------------------------------------
+
+enum UserLevel {
+  BEGINNER    // 0 - 499 XP
+  EXPLORER    // 500 - 1,499 XP
+  ANALYST     // 1,500 - 3,499 XP
+  STRATEGIST  // 3,500 - 6,999 XP
+  EXPERT      // 7,000 - 12,499 XP
+  MASTER      // 12,500 - 24,999 XP
+  LEGEND      // 25,000+ XP
+}
+
+enum XpActivityType {
+  COURSE_COMPLETION
+  QUIZ_PASSED
+  BUDGETING_CHALLENGE
+  PLANNING_HABIT
+  SAVINGS_GOAL_REACHED
+  EDUCATIONAL_ACTIVITY
+}
+
+enum LeaderboardScope {
+  GLOBAL
+  COUNTRY
+  WEEKLY
+  MONTHLY
+  EDUCATION
+  DISCIPLINE
+}
+
+model UserGamification {
+  id                   String     @id @default(uuid())
+  userId               String     @unique
+  user                 User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalXp              Int        @default(0)
+  weeklyXp             Int        @default(0)
+  monthlyXp            Int        @default(0)
+  educationXp          Int        @default(0)
+  disciplineXp         Int        @default(0)
+  level                UserLevel  @default(BEGINNER)
+  streakDays           Int        @default(1)
+  countryCode          String     @default("UZ")
+  isOptedOut           Boolean    @default(false) // User can opt out of public rankings
+  lastAwardedAt        DateTime?
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  @@index([totalXp])
+  @@index([weeklyXp])
+  @@index([monthlyXp])
+  @@index([countryCode, totalXp])
+  @@map("user_gamification")
+}
+
+model UserXpLog {
+  id             String         @id @default(uuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount         Int
+  activityType   XpActivityType
+  referenceId    String
+  idempotencyKey String         @unique // Prevents duplicate XP rewards: `${userId}:${activityType}:${referenceId}`
+  description    String
+  createdAt      DateTime       @default(now())
+
+  @@index([userId])
+  @@index([activityType])
+  @@map("user_xp_logs")
+}
+
+// ------------------------------------------------------------------------------
+// TELEGRAM BOT INTEGRATION & SECURE ACCOUNT LINKING
+// ------------------------------------------------------------------------------
+
+model TelegramLinkToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  expiresAt DateTime
+  isUsed    Boolean   @default(false)
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+  @@index([userId])
+  @@map("telegram_link_tokens")
+}
+
+model TelegramProcessedUpdate {
+  id        String   @id @default(uuid())
+  updateId  BigInt   @unique
+  chatId    String?
+  command   String?
+  createdAt DateTime @default(now())
+
+  @@index([updateId])
+  @@map("telegram_processed_updates")
+}
+
+model TelegramNotificationPreference {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enabled            Boolean  @default(true)
+  marketPrice        Boolean  @default(true)
+  currencyExchange   Boolean  @default(true)
+  portfolioSummary   Boolean  @default(true)
+  weeklyReports      Boolean  @default(true)
+  educationalCourses Boolean  @default(true)
+  challengeReminders Boolean  @default(true)
+  achievementAlerts  Boolean  @default(true)
+  rankingUpdates     Boolean  @default(true)
+  securityAlerts     Boolean  @default(true)
+  accountActivity    Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("telegram_notification_preferences")
+}
+
+model TelegramNotificationDelivery {
+  id             String    @id @default(uuid())
+  userId         String
+  chatId         String
+  category       String
+  title          String
+  message        String    @db.Text
+  idempotencyKey String    @unique
+  status         String    @default("PENDING")
+  attempts       Int       @default(0)
+  maxAttempts    Int       @default(3)
+  lastError      String?   @db.Text
+  deliveredAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([category])
+  @@map("telegram_notification_deliveries")
+}
