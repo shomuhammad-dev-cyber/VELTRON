@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
   // Handle CORS Preflight (OPTIONS)
   if (request.method === 'OPTIONS') {
     const preflightResponse = new NextResponse(null, { status: 204 });
-    return applySecurityHeaders(preflightResponse, origin);
+    return applySecurityHeaders(preflightResponse, origin, pathname);
   }
 
   // Reject development-only or test endpoints in production
@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('callbackUrl', encodeURI(pathname));
       const redirectResponse = NextResponse.redirect(loginUrl);
-      return applySecurityHeaders(redirectResponse, origin);
+      return applySecurityHeaders(redirectResponse, origin, pathname);
     }
 
     // 3. Admin / Compliance route protection
@@ -54,14 +54,14 @@ export async function middleware(request: NextRequest) {
       if (roleCookie !== 'SYSTEM_ADMIN' && roleCookie !== 'COMPLIANCE_OFFICER') {
         const unauthorizedUrl = new URL('/login?error=AccessDenied', request.url);
         const redirectResponse = NextResponse.redirect(unauthorizedUrl);
-        return applySecurityHeaders(redirectResponse, origin);
+        return applySecurityHeaders(redirectResponse, origin, pathname);
       }
     }
   }
 
   // 4. Inject full suite of enterprise security headers onto response
   const response = NextResponse.next();
-  return applySecurityHeaders(response, origin);
+  return applySecurityHeaders(response, origin, pathname);
 }
 
 export const config = {

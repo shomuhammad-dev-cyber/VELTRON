@@ -36,7 +36,7 @@ if (fs.existsSync(envLocalPath)) {
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '9293997731:AAGCbBiXZeOH02OSsXyWuNyJTW9Udc93R2k';
 const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID || '7552517378';
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://veltron-official-tma.loca.lt';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://3c68d6a7b1d0bc.lhr.life';
 const TELEGRAM_API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 // -----------------------------------------------------------------------------
@@ -247,9 +247,10 @@ async function tgApi(method: string, body?: any): Promise<any> {
 
 // Persistent Reply Keyboard at bottom of chat screen
 function getPersistentKeyboard() {
+  const tmaUrl = `${APP_URL}/tma`;
   return {
     keyboard: [
-      [{ text: '🚀 VELTRON Platformasi' }, { text: '🎯 Muammolar & Yechim' }],
+      [{ text: '🚀 VELTRON Platformasi', web_app: { url: tmaUrl } }, { text: '🎯 Muammolar & Yechim' }],
       [{ text: '📈 Jonli Bozorlar' }, { text: '💼 Savdo Qilish ($100k)' }],
       [{ text: '🎓 Akademiya & Test' }, { text: '🤖 AI Maslahat' }],
       [{ text: '📊 Mening Hisobim' }, { text: 'ℹ️ Yordam' }],
@@ -1188,19 +1189,34 @@ async function initializeBot() {
   await tgApi('deleteWebhook', { drop_pending_updates: false });
   console.log('✔ [VELTRON BOT] Long-polling tizimi tayyor.');
 
-  // 5. Send status update to Admin Chat
+  // 5. Send status update to Admin Chat with direct WebApp launcher
   try {
     const adminUser = getUser(parseInt(ADMIN_CHAT_ID, 10));
     await tgApi('sendMessage', {
       chat_id: ADMIN_CHAT_ID,
       text:
-        '🏛️ <b>MUKAMMAL VELTRON BOT ISHGA TUSHIRILDI!</b>\n\n' +
-        '✔ <b>Virtual Savdo:</b> BTC, ETH, Oltin, Tesla xarid/sotish faol.\n' +
-        '✔ <b>AI Maslahatchi:</b> Har qanday savolga aqlli javob beradi.\n' +
-        '✔ <b>Moliya Viktorinasi:</b> 100 XP lik testlar integratsiyasi.\n' +
-        '✔ <b>Doimiy Klaviatura:</b> Pastki menyu qulayligi.\n\n' +
-        '<i>Pastdagi tugmalar orqali botni to‘liq sinab ko‘ring:</i>',
+        '🏛️ <b>MUKAMMAL VELTRON PLATFORMASI VA BOT TAYYOR!</b>\n\n' +
+        '👑 Sizning shaxsiy <b>VELTRON</b> loyihangiz to‘liq ulandi.\n' +
+        'Hech qanday tashqi yoki soxta sayt emas — aynan sizning kompyuteringizdagi hashamatli VELTRON platformasi!\n\n' +
+        '✔ <b>Telegram Mini App:</b> To‘g‘ridan-to‘g‘ri Telegram ichida to‘liq ochiladi.\n' +
+        '✔ <b>Virtual Savdo:</b> $100,000 boshlang‘ich balans, BTC/ETH/Oltin savdosi.\n' +
+        '✔ <b>AI Maslahatchi:</b> Kvant tahlil va moliya strategiyalari.\n' +
+        '✔ <b>Klaviatura:</b> Pastdagi tugmalar va Menu orqali boshqaruv.\n\n' +
+        '<i>Saytni Telegram ichida ochish uchun quyidagi oltin tugmani bosing:</i>',
       parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '🚀 VELTRON Platformasini Ochish (Telegram Ichida)', web_app: { url: `${APP_URL}/tma` } }],
+          [{ text: '🎯 Muammolar & Yechim', callback_data: 'cmd_problems' }],
+          [{ text: '💼 Savdo Terminali ($100k)', callback_data: 'trade_menu' }],
+        ],
+      },
+    });
+
+    // Also send the persistent keyboard
+    await tgApi('sendMessage', {
+      chat_id: ADMIN_CHAT_ID,
+      text: '⚡ Pastki menyu tugmalari ham faollashtirildi:',
       reply_markup: getPersistentKeyboard(),
     });
   } catch (err) {

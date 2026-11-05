@@ -41,10 +41,18 @@ export const ALLOWED_ORIGINS = new Set([...defaultAllowedOrigins, ...dynamicOrig
  */
 export function applySecurityHeaders(
   response: NextResponse,
-  requestOrigin?: string | null
+  requestOrigin?: string | null,
+  pathname?: string | null
 ): NextResponse {
+  const isTma = pathname?.startsWith('/tma');
+
   // 1. Clickjacking Protection
-  response.headers.set('X-Frame-Options', 'DENY');
+  if (!isTma) {
+    response.headers.set('X-Frame-Options', 'DENY');
+  } else {
+    // Mini Apps are embedded inside Telegram Web (iframe) or Telegram mobile webviews
+    response.headers.delete('X-Frame-Options');
+  }
 
   // 2. MIME Sniffing Mitigation
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -61,13 +69,23 @@ export function applySecurityHeaders(
   // In production, enforce strict CSP and Cross-Origin Isolation policies
   // (In local dev, strict COOP and CSP block Next.js HMR WebSockets and dev server error overlays)
   if (process.env.NODE_ENV === 'production') {
-    response.headers.set('Content-Security-Policy', CONTENT_SECURITY_POLICY);
+    if (isTma) {
+      const tmaCsp = CONTENT_SECURITY_POLICY.replace(
+        "frame-ancestors 'none'",
+        "frame-ancestors 'self' https://web.telegram.org https://*.telegram.org https://telegram.org"
+      );
+      response.headers.set('Content-Security-Policy', tmaCsp);
+    } else {
+      response.headers.set('Content-Security-Policy', CONTENT_SECURITY_POLICY);
+    }
     response.headers.set(
       'Strict-Transport-Security',
       'max-age=63072000; includeSubDomains; preload'
     );
-    response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
-    response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
+    if (!isTma) {
+      response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+      response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
+    }
   }
 
   // 5. CORS Restriction (No Wildcards with credentials)
