@@ -34,6 +34,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# runtime data
+/data/active-tunnel.json
+/data/telegram-users.json
+
 # prisma generated
 /prisma/*.db
 /prisma/*.db-journal

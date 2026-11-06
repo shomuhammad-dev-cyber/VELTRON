@@ -1,4 +1,27 @@
 import https from 'https';
+import fs from 'fs';
+import path from 'path';
+
+const envLocalPath = path.resolve(process.cwd(), '.env.local');
+if (fs.existsSync(envLocalPath)) {
+  const content = fs.readFileSync(envLocalPath, 'utf8');
+  for (const line of content.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx !== -1) {
+      const key = trimmed.slice(0, eqIdx).trim();
+      let val = trimmed.slice(eqIdx + 1).trim();
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+      process.env[key] = val;
+    }
+  }
+}
+
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID || '7552517378';
 
 const agent = new https.Agent({ keepAlive: true });
 
@@ -17,7 +40,7 @@ Botingiz chuqur tahlil asosida tubdan takomillashtirildi va mukammal darajaga ye
 <i>Pastdagi tugmalar orqali bot imkoniyatlarini sinab ko‘ring:</i>`;
 
 const payload = JSON.stringify({
-  chat_id: '7552517378',
+  chat_id: ADMIN_CHAT_ID,
   text: text,
   parse_mode: 'HTML',
   reply_markup: {
@@ -33,7 +56,7 @@ const payload = JSON.stringify({
 });
 
 const req = https.request(
-  'https://api.telegram.org/bot9293997731:AAGCbBiXZeOH02OSsXyWuNyJTW9Udc93R2k/sendMessage',
+  `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
   {
     method: 'POST',
     headers: {

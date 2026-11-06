@@ -34,9 +34,9 @@ if (fs.existsSync(envLocalPath)) {
   }
 }
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '9293997731:AAGCbBiXZeOH02OSsXyWuNyJTW9Udc93R2k';
-const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID || '7552517378';
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://3c68d6a7b1d0bc.lhr.life';
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID || '';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://3af3abd04f158c2c-185-139-139-202.serveousercontent.com';
 const TELEGRAM_API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 // -----------------------------------------------------------------------------
