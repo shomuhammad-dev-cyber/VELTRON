@@ -84,13 +84,29 @@ export default function TelegramMiniAppPage() {
       setAuthLoading(true);
       try {
         const tgUser = initDataUnsafe?.user;
+        const isBoss =
+          tgUser?.id === 7552517378 ||
+          tgUser?.username === 'BRABOSS';
+
+        let apiUser: any = null;
+        try {
+          const res = await fetch('/api/v1/auth/me');
+          const json = await res.json();
+          if (json?.authenticated) apiUser = json.user;
+        } catch {}
+
         if (isMounted) {
+          const isBossFinal = isBoss || Boolean(apiUser?.isBoss);
           setUserSession({
-            displayName: tgUser ? `${tgUser.first_name}${tgUser.last_name ? ' ' + tgUser.last_name : ''}` : 'Investor (Alexandr)',
-            username: tgUser?.username || 'investor_alex',
-            paperEquity: 100000.0,
+            displayName: isBossFinal
+              ? 'Boss (Shomuhammad)'
+              : (apiUser?.displayName || (tgUser ? `${tgUser.first_name}${tgUser.last_name ? ' ' + tgUser.last_name : ''}` : 'Investor')),
+            username: tgUser?.username || apiUser?.email?.split('@')[0] || 'investor',
+            isBoss: isBossFinal,
+            tier: isBossFinal ? 'MAX' : (apiUser?.tier || 'FREE'),
+            paperEquity: isBossFinal ? 1000000.0 : 100000.0,
             checkingBalance: 12847.32,
-            xp: 4250,
+            xp: isBossFinal ? 10000 : 4250,
           });
         }
       } finally {

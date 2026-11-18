@@ -117,12 +117,12 @@ export function useTelegramWebApp(): UseTelegramWebAppReturn {
           setIsFullscreen(Boolean(tg.isFullscreen));
         }
 
-        // Set header color to match futuristic Valixen cyber aesthetic
+        // Set header color to match Bespoke Royal Luxury palette
         if (typeof tg.setHeaderColor === 'function') {
-          tg.setHeaderColor('#07090E');
+          tg.setHeaderColor('#120A08');
         }
         if (typeof tg.setBackgroundColor === 'function') {
-          tg.setBackgroundColor('#07090E');
+          tg.setBackgroundColor('#090706');
         }
 
         // Viewport resize listener
@@ -243,6 +243,12 @@ export function useTelegramWebApp(): UseTelegramWebAppReturn {
     if (!btn) return;
 
     btn.setText(options.text);
+    if (typeof btn.setParams === 'function') {
+      btn.setParams({
+        color: '#C6A477',
+        text_color: '#120A08',
+      });
+    }
     if (options.visible !== false) {
       btn.show();
     } else {

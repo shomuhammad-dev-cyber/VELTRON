@@ -13,13 +13,18 @@ import { UserRole, KycStatus, AccountType, AccountStatus } from '@prisma/client'
 import { logger } from '@/lib/logger';
 import crypto from 'crypto';
 
-// Diagnostic check for actual Google OAuth credentials (no simulation)
+// Diagnostic check for actual Google OAuth credentials (support standard Google env vars)
+const googleClientId =
+  process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret =
+  process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_SECRET;
+
 const isGoogleOAuthConfigured =
-  Boolean(process.env.AUTH_GOOGLE_ID) && Boolean(process.env.AUTH_GOOGLE_SECRET);
+  Boolean(googleClientId) && Boolean(googleClientSecret);
 
 if (!isGoogleOAuthConfigured) {
   logger.warn(
-    'Google OAuth credentials (AUTH_GOOGLE_ID / AUTH_GOOGLE_SECRET) are not set in environment variables. Real Google Sign-In requires authentic credentials from Google Cloud Console.'
+    'Google OAuth credentials (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET) are not set. Set these in Vercel or .env.local to enable real Google Sign-In.'
   );
 }
 
@@ -49,12 +54,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     verifyRequest: '/verify-email',
   },
   providers: [
-    // 1. Google OAuth Provider (Using real configuration, not simulated)
+    // 1. Google OAuth Provider (Using real configuration, supports Google Cloud Console credentials)
     ...(isGoogleOAuthConfigured
       ? [
           Google({
-            clientId: process.env.AUTH_GOOGLE_ID!,
-            clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+            clientId: googleClientId!,
+            clientSecret: googleClientSecret!,
             authorization: {
               params: {
                 prompt: 'consent',
@@ -108,19 +113,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account }: any) {
       if (account?.provider === 'google' && user?.email) {
         const normalizedEmail = user.email.toLowerCase();
+        const isBossEmail = normalizedEmail === 'xudayberdiyevshomuhammad@gmail.com';
 
         const existingUser = await db.user.findUnique({
           where: { email: normalizedEmail },
           include: { profile: true },
         });
 
-        if (!existingUser) {
+        if (existingUser) {
+          // If user is banned, block signin
+          if (!existingUser.isActive) {
+            return false;
+          }
+          // If Boss logs in, guarantee SYSTEM_ADMIN role
+          if (isBossEmail && existingUser.role !== UserRole.SYSTEM_ADMIN) {
+            await db.user.update({
+              where: { id: existingUser.id },
+              data: { role: UserRole.SYSTEM_ADMIN, isActive: true },
+            });
+          }
+        } else {
           await db.$transaction(async (tx: any) => {
             const newUser = await tx.user.create({
               data: {
                 email: normalizedEmail,
                 emailVerified: new Date(), // Google emails are pre-verified
-                role: UserRole.USER,
+                role: isBossEmail ? UserRole.SYSTEM_ADMIN : UserRole.USER,
                 isActive: true,
               },
             });
@@ -128,7 +146,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             await tx.userProfile.create({
               data: {
                 userId: newUser.id,
-                displayName: user.name || normalizedEmail.split('@')[0],
+                displayName: user.name || (isBossEmail ? 'Boss (Shomuhammad)' : normalizedEmail.split('@')[0]),
                 avatarUrl: user.image || null,
                 preferredCurrency: 'USD',
                 kycStatus: KycStatus.TIER_1_VERIFIED,
@@ -156,9 +174,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 userId: newUser.id,
                 name: 'Quantum Virtual Simulation',
                 isVirtual: true,
-                totalValue: 100000.0,
-                cashBalance: 100000.0,
+                totalValue: isBossEmail ? 1000000.0 : 10000.0,
+                cashBalance: isBossEmail ? 1000000.0 : 10000.0,
                 currency: 'USD',
+              },
+            });
+
+            // Initial Subscription
+            const expiry = new Date();
+            expiry.setFullYear(expiry.getFullYear() + (isBossEmail ? 5 : 1));
+            await (tx as any).subscription.create({
+              data: {
+                userId: newUser.id,
+                tier: isBossEmail ? 'MAX' : 'FREE',
+                status: 'ACTIVE',
+                currentPeriodEnd: expiry,
               },
             });
           });
@@ -168,7 +198,42 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async jwt({ token, user }: any) {
-      if (user) {
+      if (token.email) {
+        const normalized = token.email.toLowerCase();
+        const isBossEmail = normalized === 'xudayberdiyevshomuhammad@gmail.com';
+
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { email: normalized },
+            select: {
+              id: true,
+              role: true,
+              isActive: true,
+              subscriptions: {
+                where: { status: 'ACTIVE' },
+                orderBy: { createdAt: 'desc' },
+                take: 1,
+                select: { tier: true },
+              },
+            },
+          });
+
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = isBossEmail ? 'SYSTEM_ADMIN' : dbUser.role;
+            token.isActive = dbUser.isActive;
+            token.tier = isBossEmail ? 'MAX' : (dbUser.subscriptions[0]?.tier || 'FREE');
+            token.isBoss = isBossEmail || token.role === 'SYSTEM_ADMIN';
+          }
+        } catch {
+          // Fallback if DB query is unreachable
+          if (isBossEmail) {
+            token.role = 'SYSTEM_ADMIN';
+            token.isBoss = true;
+            token.tier = 'MAX';
+          }
+        }
+      } else if (user) {
         token.id = user.id;
         token.role = user.role || UserRole.USER;
         token.kycStatus = user.kycStatus || KycStatus.UNVERIFIED;
@@ -180,7 +245,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as UserRole;
-        session.user.kycStatus = token.kycStatus as KycStatus;
+        session.user.kycStatus = (token.kycStatus as KycStatus) || KycStatus.TIER_1_VERIFIED;
+        session.user.tier = (token.tier as string) || 'FREE';
+        session.user.isActive = token.isActive !== false;
+        session.user.isBoss = Boolean(token.isBoss);
       }
       return session;
     },

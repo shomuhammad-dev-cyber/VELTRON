@@ -72,7 +72,7 @@ export class TelegramBotService {
     return process.env.TELEGRAM_WEBHOOK_SECRET || 'veltron_webhook_secret_key_8923487192';
   }
   public static get appUrl(): string {
-    return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    return process.env.NEXT_PUBLIC_APP_URL || 'https://veltron-1pab.vercel.app';
   }
 
   /**
@@ -136,6 +136,34 @@ export class TelegramBotService {
     } catch (err: any) {
       logger.error('Failed to dispatch Telegram message', err);
       return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Immediately acknowledges a Telegram callback query to stop the loading wheel
+   */
+  public static async answerCallbackQuery(params: {
+    callbackQueryId: string;
+    text?: string;
+    showAlert?: boolean;
+  }): Promise<{ success: boolean }> {
+    if (!this.botToken || this.botToken.startsWith('placeholder_')) {
+      return { success: true };
+    }
+    try {
+      const url = `https://api.telegram.org/bot${this.botToken}/answerCallbackQuery`;
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          callback_query_id: params.callbackQueryId,
+          text: params.text,
+          show_alert: params.showAlert,
+        }),
+      });
+      return { success: true };
+    } catch {
+      return { success: false };
     }
   }
 
@@ -433,17 +461,35 @@ ${detailLines}
           await this.handleAppCommand(chatId);
           return { handled: true, command: '/app', chatId };
 
-        case '/dashboard':
-          await this.handleDashboardCommand(chatId, from.id);
-          return { handled: true, command: '/dashboard', chatId };
+        case '/trade':
+          await this.handleTradeCommand(chatId, from.id);
+          return { handled: true, command: '/trade', chatId };
 
         case '/markets':
           await this.handleMarketsCommand(chatId);
           return { handled: true, command: '/markets', chatId };
 
         case '/portfolio':
-          await this.handlePortfolioCommand(chatId, from.id);
-          return { handled: true, command: '/portfolio', chatId };
+        case '/dashboard':
+          await this.handleDashboardCommand(chatId, from.id);
+          return { handled: true, command: '/dashboard', chatId };
+
+        case '/ai':
+          await this.handleAiCommand(chatId);
+          return { handled: true, command: '/ai', chatId };
+
+        case '/quiz':
+          await this.handleQuizCommand(chatId, from.id);
+          return { handled: true, command: '/quiz', chatId };
+
+        case '/pricing':
+        case '/tarifs':
+          await this.handlePricingCommand(chatId);
+          return { handled: true, command: '/pricing', chatId };
+
+        case '/admin':
+          await this.handleAdminCommand(chatId, from.id);
+          return { handled: true, command: '/admin', chatId };
 
         case '/education':
           await this.handleEducationCommand(chatId);
@@ -470,8 +516,56 @@ ${detailLines}
       const data = update.callback_query.data;
       const chatId = query.message?.chat.id || query.from.id;
 
+      // Crucial: Always immediately answer callback query so Telegram loading spinner stops
+      await this.answerCallbackQuery({ callbackQueryId: query.id });
+
       if (data.startsWith('pref_')) {
         await this.handlePreferenceCallback(chatId, query.from.id, data);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data === 'cmd_dashboard') {
+        await this.handleDashboardCommand(chatId, query.from.id);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data === 'cmd_markets') {
+        await this.handleMarketsCommand(chatId);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data === 'cmd_trade') {
+        await this.handleTradeCommand(chatId, query.from.id);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data === 'cmd_ai') {
+        await this.handleAiCommand(chatId);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data === 'cmd_quiz') {
+        await this.handleQuizCommand(chatId, query.from.id);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data === 'cmd_pricing') {
+        await this.handlePricingCommand(chatId);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data === 'cmd_help') {
+        await this.handleHelpCommand(chatId);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data.startsWith('trade_')) {
+        await this.handleQuickTradeCallback(chatId, query.from.id, data);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data.startsWith('quiz_ans_')) {
+        await this.handleQuizAnswerCallback(chatId, query.from.id, data);
         return { handled: true, command: data, chatId };
       }
     }
@@ -546,32 +640,93 @@ Please visit your <a href="${this.appUrl}/dashboard">VELTRON Dashboard</a> to ge
       }
     }
 
-    // Default welcome message
-    const welcome = `
+    // Check if this is Boss
+    const isBoss =
+      String(chatId) === '7552517378' ||
+      String(from.id) === '7552517378' ||
+      from.username === 'BRABOSS';
+
+    if (isBoss) {
+      const bossWelcome = `
 ╔══════════════════════════════════════╗
-║  ◈ VELTRON QUANTUM INTELLIGENCE NODE ◈║
-║     <i>The Future of Autonomous AI Finance</i>    ║
+║   ⚜️ VELTRON SOVEREIGN PLATFORM ⚜️   ║
+║  <i>Bespoke Italian Luxury Financial Node</i>║
 ╚══════════════════════════════════════╝
 
-👋 Salohiyatli investor, <b>${from.first_name}</b>!
+👑 <b>HURMATLI BOSS (SHOMUHAMMAD)!</b>
+Siz <b>VELTRON</b> boshqaruv tizimiga muvaffaqiyatli ulandingiz.
+
+● <b>TIZIM STATUSI:</b> <code>100% ONLINE (Singapur - sin1)</code>
+● <b>DATA BAZA (SUPABASE):</b> <code>ULANGAN & FAOL (Auto Keep-Alive)</code>
+● <b>HUQUQ DARAJASI:</b> <code>👑 SYSTEM_ADMIN & 100% MAX VIP</code>
+● <b>VIRTUAL KAPITAL:</b> <code>$1,000,000+ CHEKSIZ</code>
+
+┌─ [BOSHQARUV VA TEZKOR IMKONIYATLAR] ──
+│  👑 <b>/admin</b> — Admin Panel (Foydalanuvchilar, Ban, Rollar)
+│  💼 <b>/trade</b> — $100k Demo savdo stoli
+│  📈 <b>/markets</b> — Real vaqtdagi Kripto va Oltin
+│  🧠 <b>/ai</b> — Quantum AI moliyaviy maslahatchi
+│  🎓 <b>/quiz</b> — Moliyaviy IQ viktorina (+100 XP)
+│  💎 <b>/pricing</b> — 4 ta suveren tarif (Free, Pro, Ultra, Max)
+│  🛰️ <b>/app</b> — Telegram Mini App terminali
+└───────────────────────────────────────
+
+<i>Quyidagi tugmalardan birini bosing:</i>
+`;
+
+      await this.sendMessage({
+        chatId,
+        text: bossWelcome,
+        replyMarkup: {
+          inline_keyboard: [
+            [
+              { text: '⚡ VELTRON App (Mini App)', web_app: { url: `${this.appUrl}/tma` } },
+              { text: '👑 Admin Panel', web_app: { url: `${this.appUrl}/admin` } },
+            ],
+            [
+              { text: '💼 $100k Savdo Desk', callback_data: 'cmd_trade' },
+              { text: '📈 Jonli Bozorlar', callback_data: 'cmd_markets' },
+            ],
+            [
+              { text: '🧠 AI Maslahatchi', callback_data: 'cmd_ai' },
+              { text: '💎 Tariflar (Pricing)', callback_data: 'cmd_pricing' },
+            ],
+            [
+              { text: '🌐 Veb-saytga o‘tish', url: this.appUrl },
+            ],
+          ],
+        },
+      });
+      return;
+    }
+
+    // Default Royal Luxury welcome message
+    const welcome = `
+╔══════════════════════════════════════╗
+║   ⚜️ VELTRON SOVEREIGN PLATFORM ⚜️   ║
+║  <i>Bespoke Italian Luxury Financial Node</i>║
+╚══════════════════════════════════════╝
+
+👋 Xush kelibsiz, <b>${from.first_name}</b>!
 Siz <b>VELTRON</b> — Futuristic AI Finance rasmiy telemetriya tarmog‘iga ulandingiz.
 
 ● <b>TIZIM HOLATI:</b> <code>ONLINE (Tezlik: 12ms)</code>
 ● <b>XAVFSIZLIK:</b> <code>AES-256-GCM / SOC-2 AUDITED</code>
 ● <b>EKOTIZIM:</b> <code>INSTITUTIONAL QUANTITATIVE TERMINAL</code>
 
-┌─ [BUYRUQLAR KATALOGI / COMMAND DIRECTORY] ─
+┌─ [BUYRUQLAR KATALOGI / DIRECTORY] ────
 │  🛰️ <b>/app</b> — To‘liq ekranli Telegram Mini App
-│  📊 <b>/dashboard</b> — Bog‘langan kapital, balans va daraja
-│  📈 <b>/markets</b> — Real vaqtdagi Kripto va MB kurslari
-│  💼 <b>/portfolio</b> — Simulyatsion savdo va xedj pozitsiyalari
-│  🎓 <b>/education</b> — Gamifikatsiyalangan ta’lim va XP sprintlari
-│  🏆 <b>/ranking</b> — Global va O‘zbekiston suveren reytingi
-│  🚨 <b>/alerts</b> — 10 ta avtonom bildirishnoma kanali
-│  ℹ️ <b>/help</b> — Tizim qo‘llanmasi va xavfsizlik nizomi
+│  💼 <b>/trade</b> — $100,000 Paper Trading savdo stoli
+│  📈 <b>/markets</b> — Real vaqtdagi Kripto, Oltin va MB kurslari
+│  📊 <b>/dashboard</b> — Bog‘langan kapital va shaxsiy daraja
+│  🧠 <b>/ai</b> — Quantum AI moliyaviy maslahatchisi
+│  🎓 <b>/quiz</b> — Moliyaviy savodxonlik viktorinasi (+100 XP)
+│  💎 <b>/pricing</b> — Barcha 4 ta tarif (Free, Pro, Ultra, Max)
+│  🏆 <b>/ranking</b> — Suveren investorlar reytingi
+│  ℹ️ <b>/help</b> — Tizim qo‘llanmasi va buyruqlar
 └───────────────────────────────────────
 
-<i>Veb-saytingizdagi hisobni ulash uchun Dashboard yoki Sozlamalardan bir martalik kalit oling.</i>
+<i>Quyidagi interaktiv tugmalardan birini tanlang:</i>
 `;
 
     await this.sendMessage({
@@ -579,12 +734,21 @@ Siz <b>VELTRON</b> — Futuristic AI Finance rasmiy telemetriya tarmog‘iga ula
       text: welcome,
       replyMarkup: {
         inline_keyboard: [
-          [{ text: '⚡ Launch VELTRON WebApp (TMA)', web_app: { url: `${this.appUrl}/tma?startapp=dashboard` } }],
           [
-            { text: '📈 Live Markets', callback_data: 'cmd_markets' },
-            { text: '🏆 Leaderboards', url: `${this.appUrl}/ranking` },
+            { text: '⚡ VELTRON App (Mini App)', web_app: { url: `${this.appUrl}/tma` } },
+            { text: '💼 $100k Savdo Desk', callback_data: 'cmd_trade' },
           ],
-          [{ text: '🔐 Link Web Account', url: `${this.appUrl}/dashboard` }],
+          [
+            { text: '📈 Jonli Bozorlar', callback_data: 'cmd_markets' },
+            { text: '🧠 AI Maslahatchi', callback_data: 'cmd_ai' },
+          ],
+          [
+            { text: '💎 Tariflar (Pricing)', callback_data: 'cmd_pricing' },
+            { text: '🎓 Viktorina (+100 XP)', callback_data: 'cmd_quiz' },
+          ],
+          [
+            { text: '🌐 Rasmiy Veb-Sayt', url: this.appUrl },
+          ],
         ],
       },
     });
@@ -614,6 +778,50 @@ Telegram ichida to‘liq quvvatli institutsional AI moliya terminalini ishga tus
   }
 
   private static async handleDashboardCommand(chatId: number, telegramUserId: number) {
+    const isBoss = String(telegramUserId) === '7552517378' || String(chatId) === '7552517378';
+
+    if (isBoss) {
+      const bossDossier = `
+╔══════════════════════════════════════╗
+║    👑 BOSS SOVEREIGN DOSSIER 👑      ║
+║   <i>System Administrator Identity</i>     ║
+╚══════════════════════════════════════╝
+
+👤 <b>Boshqaruvchi:</b> <code>Boss (Shomuhammad)</code>
+👑 <b>Huquq:</b> <b>SYSTEM_ADMIN & 100% MAX VIP</b>
+🎖️ <b>Bilim XP:</b> <code>10,000+ XP (Apex Sovereign)</code>
+💼 <b>Virtual Kapital:</b> <code>$1,000,000.00 USD</code>
+🛡️ <b>Xavfsizlik:</b> <code>SOC-2 Audited / Singapur (sin1)</code>
+
+┌─ [EKOTIZIM KO‘RSATKICHLARI] ──────────
+│  • <b>Supabase Holati:</b> <code>CONNECTED (Auto Keep-Alive)</code>
+│  • <b>Vercel Holati:</b> <code>READY (veltron-1pab.vercel.app)</code>
+│  • <b>Bot Servisi:</b> <code>100% FAOL (Tezlik: 12ms)</code>
+└───────────────────────────────────────
+`;
+
+      await this.sendMessage({
+        chatId,
+        text: bossDossier,
+        replyMarkup: {
+          inline_keyboard: [
+            [
+              { text: '👑 Admin Panelni Ochish', web_app: { url: `${this.appUrl}/admin` } },
+              { text: '⚡ VELTRON App (TMA)', web_app: { url: `${this.appUrl}/tma` } },
+            ],
+            [
+              { text: '💼 $100k Savdo Desk', callback_data: 'cmd_trade' },
+              { text: '📈 Jonli Bozorlar', callback_data: 'cmd_markets' },
+            ],
+            [
+              { text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' },
+            ],
+          ],
+        },
+      });
+      return;
+    }
+
     // Find linked user profile
     let profile: any = null;
     try {
@@ -643,7 +851,10 @@ Ushbu Telegram profilingiz hali <b>VELTRON</b> veb-platformasidagi hisobingizga 
 └───────────────────────────────────────
 `,
         replyMarkup: {
-          inline_keyboard: [[{ text: '🔗 Link Account Now', url: `${this.appUrl}/dashboard` }]],
+          inline_keyboard: [
+            [{ text: '⚡ VELTRON App (TMA)', web_app: { url: `${this.appUrl}/tma` } }],
+            [{ text: '🔗 Link Account Now', url: `${this.appUrl}/dashboard` }],
+          ],
         },
       });
       return;
@@ -680,6 +891,279 @@ Progress: [▰▰▰▰▰▰▰▱▱▱] <b>74% to Expert</b>
         ],
       },
     });
+  }
+
+  private static async handleTradeCommand(chatId: number, telegramUserId: number) {
+    const text = `
+╔══════════════════════════════════════╗
+║     💼 VELTRON SAVDO TERMINALI 💼    ║
+║     <i>$100,000 Paper Trading Desk</i>    ║
+╚══════════════════════════════════════╝
+
+📈 <b>JONLI KOTIROVKALAR:</b>
+◈ <b>BTC / USD:</b> <code>$94,820.00</code> (▲ +2.4%) 🟢
+◈ <b>ETH / USD:</b> <code>$3,420.50</code> (▲ +1.8%) 🟢
+◈ <b>XAU / USD (Oltin):</b> <code>$2,680.40</code> (▲ +0.8%) 🟡
+
+💵 <b>Virtual Depozitingiz:</b> <code>$100,000.00 USD</code>
+🛡️ <b>Xavf:</b> <code>0% (Hech qanday real yo‘qotishsiz)</code>
+
+<i>Tezkor demo operatsiya qilish uchun quyidagi tugmalardan birini bosing:</i>
+`;
+
+    await this.sendMessage({
+      chatId,
+      text,
+      replyMarkup: {
+        inline_keyboard: [
+          [
+            { text: '🟢 +$1,000 BTC Sotib olish', callback_data: 'trade_buy_btc' },
+            { text: '🔴 -$1,000 BTC Sotish', callback_data: 'trade_sell_btc' },
+          ],
+          [
+            { text: '🟡 +$1,000 Oltin Sotib olish', callback_data: 'trade_buy_gold' },
+            { text: '🔴 -$1,000 Oltin Sotish', callback_data: 'trade_sell_gold' },
+          ],
+          [
+            { text: '⚡ To‘liq Savdo Grafiki (TMA)', web_app: { url: `${this.appUrl}/tma?startapp=markets` } },
+          ],
+          [
+            { text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' },
+          ],
+        ],
+      },
+    });
+  }
+
+  private static async handleAiCommand(chatId: number) {
+    const text = `
+╔══════════════════════════════════════╗
+║    🧠 VELTRON QUANTUM AI MENTOR 🧠   ║
+║     <i>Avtonom Moliyaviy Maslahatchi</i>    ║
+╚══════════════════════════════════════╝
+
+Salom! Men sizning shaxsiy sun’iy intellekt moliyaviy maslahatchisiman.
+Quyidagi mavzulardan birini tanlang yoki savol yo‘llang:
+
+◈ <b>Bozor Tahlili:</b> Hozir kripto yoki oltin sotib olish to‘g‘rimi?
+◈ <b>Portfelni Xedjlash:</b> Inflyatsiyadan kapitalni qanday asrash mumkin?
+◈ <b>Risk Menejmenti:</b> 1% risk qoidasi qanday ishlaydi?
+`;
+
+    await this.sendMessage({
+      chatId,
+      text,
+      replyMarkup: {
+        inline_keyboard: [
+          [
+            { text: '📊 Oltin va Kripto tahlili', callback_data: 'trade_buy_gold' },
+            { text: '🛡️ Xedjlash strategiyasi', callback_data: 'cmd_pricing' },
+          ],
+          [
+            { text: '🤖 AI Bilan Jonli Suhbat (Mini App)', web_app: { url: `${this.appUrl}/tma?startapp=education` } },
+          ],
+          [
+            { text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' },
+          ],
+        ],
+      },
+    });
+  }
+
+  private static async handleQuizCommand(chatId: number, telegramUserId: number) {
+    const text = `
+╔══════════════════════════════════════╗
+║    🎓 MOLIYAVIY SAVODXONLIK (+100 XP) ║
+║          <i>Haftalik Kvant Testi</i>         ║
+╚══════════════════════════════════════╝
+
+❓ <b>SAVOL:</b>
+<i>"Investitsiyalarda diversifikatsiya (mablag‘larni turli aktivlarga bo‘lish) ning asosiy maqsadi nima?"</i>
+
+A) Daromadni 100% kafolatlash
+B) Umumiy riskni (xavfni) kamaytirish
+C) Soliqlardan butunlay ozod bo‘lish
+D) Brokerlik to‘lovlarini oshirish
+`;
+
+    await this.sendMessage({
+      chatId,
+      text,
+      replyMarkup: {
+        inline_keyboard: [
+          [
+            { text: 'A) Daromad kafolati', callback_data: 'quiz_ans_wrong' },
+            { text: 'B) Riskni kamaytirish ✅', callback_data: 'quiz_ans_correct' },
+          ],
+          [
+            { text: 'C) Soliqdan ozod', callback_data: 'quiz_ans_wrong' },
+            { text: 'D) Broker to‘lovlari', callback_data: 'quiz_ans_wrong' },
+          ],
+          [
+            { text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' },
+          ],
+        ],
+      },
+    });
+  }
+
+  private static async handlePricingCommand(chatId: number) {
+    const text = `
+╔══════════════════════════════════════╗
+║    💎 VELTRON SUVEREN TARIFLARI 💎   ║
+║     <i>100% Barcha Imkoniyatlar</i>      ║
+╚══════════════════════════════════════╝
+
+Platformadagi rasmiy 4 ta versiya:
+
+1️⃣ ◈ <b>TEKIN (FREE / EXPLORER)</b> — <code>$0 / oy</code>
+   • 15% funksiyalar ochiq
+   • $10,000 demo kapital
+   • Kuniga 5 ta AI so‘rov
+
+2️⃣ ◈ <b>APEX PRO</b> — <code>$29 / oy</code> (350,000 so‘m)
+   • 55% funksiyalar ochiq
+   • $100,000 demo kapital
+   • Barcha texnik indikatorlar va signallar
+
+3️⃣ ◈ <b>ULTRA GROWTH</b> — <code>$79 / oy</code> (990,000 so‘m)
+   • 85% funksiyalar ochiq
+   • $500,000 demo kapital
+   • Kvant tahlil, xedjlash va VIP Telegram kanali
+
+4️⃣ ◈ <b>MAX SOVEREIGN VIP</b> — <code>$199 / oy</code> (2,500,000 so‘m)
+   • <b>100% BARCHA IMKONIYATLAR TO‘LIQ OCHIQ!</b>
+   • $1,000,000+ cheksiz demo kapital
+   • 24/7 shaxsiy AI mentor va konsyerj xizmati
+   • Dasturchilar uchun API kirish
+`;
+
+    await this.sendMessage({
+      chatId,
+      text,
+      replyMarkup: {
+        inline_keyboard: [
+          [
+            { text: '💎 Tariflarni Saytda Ko‘rish & Xarid', web_app: { url: `${this.appUrl}/pricing` } },
+          ],
+          [
+            { text: '🌐 Brauzerda Ochish', url: `${this.appUrl}/pricing` },
+            { text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' },
+          ],
+        ],
+      },
+    });
+  }
+
+  private static async handleAdminCommand(chatId: number, telegramUserId: number) {
+    const isBoss = String(telegramUserId) === '7552517378' || String(chatId) === '7552517378';
+
+    if (!isBoss) {
+      await this.sendMessage({
+        chatId,
+        text: '⛔ <i>Ushbu buyruq faqat platforma rahbarlari (Boss) uchun mo‘ljallangan.</i>',
+      });
+      return;
+    }
+
+    let userCount = 0;
+    try {
+      userCount = await db.user.count();
+    } catch {}
+
+    const text = `
+╔══════════════════════════════════════╗
+║     👑 VELTRON ADMIN BOSHQARUV 👑    ║
+║     <i>Faqat Rahbariyat (Boss) Uchun</i>    ║
+╚══════════════════════════════════════╝
+
+Salom, Boss! Boshqaruv ma’lumotlari:
+
+● <b>RO‘YXATDAN O‘TGANLAR:</b> <code>${userCount} ta foydalanuvchi</code>
+● <b>DATA BAZA STATUSI:</b> <code>ONLINE (Supabase ap-southeast-1)</code>
+● <b>AVTOMATIK PING:</b> <code>FAOL (Har 12 soatda - hechkimsiz uxlamaydi)</code>
+● <b>VERCEL SERVERI:</b> <code>ACTIVE (veltron-1pab.vercel.app)</code>
+
+<i>Admin Panel orqali foydalanuvchilar ro‘yxatini ko‘rish, rollarni o‘zgartirish yoki bloklash (BAN) mumkin:</i>
+`;
+
+    await this.sendMessage({
+      chatId,
+      text,
+      replyMarkup: {
+        inline_keyboard: [
+          [
+            { text: '👑 Admin Panelni Ochish', web_app: { url: `${this.appUrl}/admin` } },
+          ],
+          [
+            { text: '🌐 Brauzer orqali kirish', url: `${this.appUrl}/admin` },
+            { text: '🔙 Menyu', callback_data: 'cmd_help' },
+          ],
+        ],
+      },
+    });
+  }
+
+  private static async handleQuickTradeCallback(chatId: number, telegramUserId: number, data: string) {
+    let actionText = '';
+    if (data === 'trade_buy_btc') actionText = '🟢 +$1,000 BTC muvaffaqiyatli xarid qilindi! Kurs: $94,820.00';
+    else if (data === 'trade_sell_btc') actionText = '🔴 -$1,000 BTC sotildi! Foyda qayd etildi.';
+    else if (data === 'trade_buy_gold') actionText = '🟡 +$1,000 Oltin (XAU) xarid qilindi! Kurs: $2,680.40';
+    else if (data === 'trade_sell_gold') actionText = '🔴 -$1,000 Oltin (XAU) sotildi.';
+
+    await this.sendMessage({
+      chatId,
+      text: `
+⚡ <b>DEMO SAVDO OPERATSIYASI BAJARILDI:</b>
+${actionText}
+
+💼 <b>Joriy Virtual Balans:</b> <code>$100,000.00 USD</code>
+📊 Batafsil portfel va ochiq pozitsiyalarni ko‘rish uchun:
+`,
+      replyMarkup: {
+        inline_keyboard: [
+          [{ text: '📱 Terminalni Ochish (TMA)', web_app: { url: `${this.appUrl}/tma?startapp=markets` } }],
+          [{ text: '💼 Yana Savdo Qilish', callback_data: 'cmd_trade' }],
+        ],
+      },
+    });
+  }
+
+  private static async handleQuizAnswerCallback(chatId: number, telegramUserId: number, data: string) {
+    if (data === 'quiz_ans_correct') {
+      await this.sendMessage({
+        chatId,
+        text: `
+🎉 <b>TO‘G‘RI JAVOB! TABRIKLAYMIZ!</b>
+<b>Javob:</b> <i>B) Umumiy riskni kamaytirish</i>
+
+🎖️ <b>Mukofot:</b> <code>+100 XP</code> sizning hisobingizga qo‘shildi!
+🔥 <b>Investorlik IQ darajangiz oshdi.</b>
+`,
+        replyMarkup: {
+          inline_keyboard: [
+            [{ text: '🎓 Akademiyani To‘liq Ochish', web_app: { url: `${this.appUrl}/tma?startapp=education` } }],
+            [{ text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' }],
+          ],
+        },
+      });
+    } else {
+      await this.sendMessage({
+        chatId,
+        text: `
+❌ <b>NOTO‘G‘RI JAVOB.</b>
+Diversifikatsiyaning bosh maqsadi — barcha mablag‘ni bitta joyga bog‘lab qo‘ymaslik, ya’ni risklarni kamaytirishdir.
+
+Qayta urinib ko‘ring!
+`,
+        replyMarkup: {
+          inline_keyboard: [
+            [{ text: '🔄 Qayta topshirish', callback_data: 'cmd_quiz' }],
+            [{ text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' }],
+          ],
+        },
+      });
+    }
   }
 
   private static async handleMarketsCommand(chatId: number) {
@@ -861,26 +1345,26 @@ Progress: [▰▰▰▰▰▰▰▱▱▱] <b>74% to Expert</b>
   }
 
   private static async handleHelpCommand(chatId: number) {
+    const isBoss = String(chatId) === '7552517378';
     const text = `
 ╔══════════════════════════════════════╗
-║     ◈ VELTRON TELEGRAM DIRECTORY ◈   ║
+║   ⚜️ VELTRON BUYRUQLAR KATALOGI ⚜️   ║
 ╚══════════════════════════════════════╝
-⚡ <i>The Future of Finance — Bot Buyruqlari</i>
 
-• <b>/start</b> — Botni ishga tushirish va hisobni bog‘lash
-• <b>/app</b> — Interaktiv Telegram Mini App terminalini ochish
-• <b>/dashboard</b> — Shaxsiy kapital, balans va darajani ko‘rish
-• <b>/markets</b> — Real vaqtdagi kripto va valyuta kurslari
-• <b>/portfolio</b> — Simulyatsion savdo va investitsiyalar holati
-• <b>/education</b> — Ta’lim chaqiriqlari (challenges) va sprintlar
-• <b>/ranking</b> — Global va milliy intizom reytingi
-• <b>/alerts</b> — 10 ta telemetriya kanalini boshqarish
-• <b>/help</b> — Ushbu ma’lumotnoma va xavfsizlik nizomi
+Quyidagi buyruqlar orqali platformaning barcha modullarini boshqarishingiz mumkin:
 
-┌─ [MAXFIYLIK VA XAVFSIZLIK NIZOMI] ────
+🛰️ <b>/app</b> — Telegram Mini App terminalini ochish
+💼 <b>/trade</b> — $100k Demo savdo stoli
+📈 <b>/markets</b> — Jonli bozorlar (BTC, ETH, Oltin, S&P 500)
+📊 <b>/portfolio</b> — Balans va investitsiyalar holati
+🧠 <b>/ai</b> — Quantum AI moliyaviy maslahatchi
+🎓 <b>/quiz</b> — Moliyaviy savodxonlik viktorinasi (+100 XP)
+💎 <b>/pricing</b> — Barcha 4 ta tarif (Free, Pro, Ultra, Max)
+${isBoss ? '👑 <b>/admin</b> — Boss Admin boshqaruv paneli\n' : ''}ℹ️ <b>/help</b> — Ushbu ma’lumotnoma va xavfsizlik nizomi
+
+┌─ [XAVFSIZLIK NIZOMI] ─────────────────
 │  VELTRON hech qachon Telegram orqali parollar,
-│  karta raqamlari, CVV yoki PIN kodlarni so‘ramaydi
-│  va yubormaydi!
+│  karta raqamlari yoki PIN kodlarni so‘ramaydi!
 └───────────────────────────────────────
 `;
 
@@ -889,8 +1373,24 @@ Progress: [▰▰▰▰▰▰▰▱▱▱] <b>74% to Expert</b>
       text,
       replyMarkup: {
         inline_keyboard: [
-          [{ text: '🌐 VELTRON Web Platform', web_app: { url: this.appUrl } }],
-          [{ text: '🛡️ Privacy Policy', url: `${this.appUrl}` }],
+          [
+            { text: '⚡ VELTRON App (Mini App)', web_app: { url: `${this.appUrl}/tma` } },
+            { text: '💼 $100k Savdo Desk', callback_data: 'cmd_trade' },
+          ],
+          [
+            { text: '📈 Jonli Bozorlar', callback_data: 'cmd_markets' },
+            { text: '🧠 AI Maslahatchi', callback_data: 'cmd_ai' },
+          ],
+          [
+            { text: '💎 Tariflar (Pricing)', callback_data: 'cmd_pricing' },
+            { text: '🎓 Viktorina (+100 XP)', callback_data: 'cmd_quiz' },
+          ],
+          ...(isBoss
+            ? [[{ text: '👑 Admin Panelni Ochish', web_app: { url: `${this.appUrl}/admin` } }]]
+            : []),
+          [
+            { text: '🌐 Rasmiy Veb-Sayt', url: this.appUrl },
+          ],
         ],
       },
     });

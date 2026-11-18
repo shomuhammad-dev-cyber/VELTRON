@@ -8,7 +8,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { VeltronLogo } from './VeltronLogo';
@@ -26,6 +26,9 @@ import {
   Settings,
   Sparkles,
   ExternalLink,
+  Crown,
+  ShieldCheck,
+  Gem,
 } from 'lucide-react';
 
 export function LuxuryNavbar() {
@@ -36,12 +39,36 @@ export function LuxuryNavbar() {
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchMe() {
+      try {
+        const res = await fetch('/api/v1/auth/me');
+        const json = await res.json();
+        if (isMounted && json?.authenticated && json?.user) {
+          setCurrentUser(json.user);
+        }
+      } catch {}
+    }
+    fetchMe();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const isBossOrAdmin =
+    Boolean(currentUser?.isBoss) ||
+    currentUser?.role === 'SYSTEM_ADMIN' ||
+    currentUser?.role === 'COMPLIANCE_OFFICER';
 
   const mainLinks = [
     { href: '/', label: 'Home' },
     { href: '/markets', label: 'Markets' },
     { href: '/trading', label: 'Trading' },
     { href: '/education', label: 'Education' },
+    { href: '/pricing', label: 'Tariflar (Pricing)' },
     { href: '/analytics', label: 'Analytics' },
     { href: '/ai-assistant', label: 'AI Assistant' },
   ];
@@ -141,7 +168,19 @@ export function LuxuryNavbar() {
           </div>
 
           {/* RIGHT: Language Selector, Notification Icon, Alexandr User Profile */}
-          <div className="hidden lg:flex items-center gap-5 shrink-0">
+          <div className="hidden lg:flex items-center gap-4 shrink-0">
+            {/* ONLY VISIBLE TO BOSS OR ADMINS: Royal Glowing Admin Panel Button */}
+            {isBossOrAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#54252D] via-[#782434] to-[#54252D] border border-[#C6A477]/70 text-xs font-bold text-[#FAF7F1] shadow-[0_0_18px_rgba(198,164,119,0.35)] hover:scale-105 transition-all"
+                title="Sovereign Enterprise Administration"
+              >
+                <Crown className="w-3.5 h-3.5 text-[#C6A477]" />
+                <span>👑 Admin Panel</span>
+              </Link>
+            )}
+
             {/* Language Selector: Globe + EN v */}
             <div className="relative">
               <button
@@ -203,44 +242,73 @@ export function LuxuryNavbar() {
               )}
             </div>
 
-            {/* User Profile Pill: Alexandr / Premium Member */}
+            {/* User Profile Pill or Login Button */}
             <div className="relative">
-              <button
-                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2.5 pl-1.5 pr-2 py-1 rounded-full hover:bg-white/5 transition-all cursor-pointer"
-              >
-                {/* Circular photo avatar */}
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C6A477]/40 shrink-0">
-                  <img
-                    src="/images/avatar-alexandr.jpg"
-                    alt="Alexandr"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                {/* Profile text */}
-                <div className="text-left leading-tight">
-                  <div className="flex items-center gap-1 text-xs font-medium text-white">
-                    <span>Alexandr</span>
-                    <ChevronDown className="w-3 h-3 text-[#C6A477]" />
+              {currentUser ? (
+                <button
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center gap-2.5 pl-1.5 pr-2 py-1 rounded-full hover:bg-white/5 transition-all cursor-pointer"
+                >
+                  {/* Circular photo avatar */}
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C6A477]/40 shrink-0 bg-[#54252D]/40 flex items-center justify-center font-bold text-xs text-[#C6A477]">
+                    {currentUser.avatarUrl ? (
+                      <img
+                        src={currentUser.avatarUrl}
+                        alt={currentUser.displayName || 'User'}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span>{currentUser.displayName ? currentUser.displayName[0].toUpperCase() : 'U'}</span>
+                    )}
                   </div>
-                  <div className="text-[10px] text-[#C6A477] font-medium tracking-wide">
-                    Premium Member
-                  </div>
-                </div>
-              </button>
 
-              {profileDropdownOpen && (
+                  {/* Profile text */}
+                  <div className="text-left leading-tight">
+                    <div className="flex items-center gap-1 text-xs font-medium text-white">
+                      <span>{currentUser.displayName || 'Investor'}</span>
+                      <ChevronDown className="w-3 h-3 text-[#C6A477]" />
+                    </div>
+                    <div className="text-[10px] text-[#C6A477] font-medium tracking-wide">
+                      {currentUser.isBoss ? '👑 Boss (Admin)' : `${currentUser.tier || 'Free'} Tier`}
+                    </div>
+                  </div>
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="px-4 py-1.5 rounded-full bg-[#54252D]/40 hover:bg-[#54252D]/70 border border-[#C6A477]/40 text-xs font-medium text-white transition-all"
+                >
+                  Kirish
+                </Link>
+              )}
+
+              {profileDropdownOpen && currentUser && (
                 <div className="absolute right-0 top-full mt-2 w-56 bg-[#140D0B] border border-[#C6A477]/30 rounded-xl shadow-2xl p-2 space-y-1 z-50">
                   <div className="px-3 py-2 border-b border-[#C6A477]/15">
-                    <p className="text-xs font-semibold text-white">Alexandr</p>
-                    <p className="text-[10px] text-[#C6A477]">Bespoke 1 of 1 Account</p>
+                    <p className="text-xs font-semibold text-white">{currentUser.displayName}</p>
+                    <p className="text-[10px] text-[#C6A477]">
+                      {currentUser.isBoss ? '👑 System Administrator' : `${currentUser.tier} Account`}
+                    </p>
                   </div>
+                  {isBossOrAdmin && (
+                    <Link
+                      href="/admin"
+                      className="block px-3 py-2 text-xs font-bold text-[#C6A477] bg-[#54252D]/30 hover:bg-[#54252D]/60 rounded-lg transition-colors"
+                    >
+                      👑 Admin Panel
+                    </Link>
+                  )}
                   <Link
                     href="/dashboard"
                     className="block px-3 py-2 text-xs text-[#E9DDCA] hover:bg-[#481B24]/40 rounded-lg transition-colors"
                   >
                     Cockpit Overview
+                  </Link>
+                  <Link
+                    href="/pricing"
+                    className="block px-3 py-2 text-xs text-[#E9DDCA] hover:bg-[#481B24]/40 rounded-lg transition-colors"
+                  >
+                    Tarifni Yangilash
                   </Link>
                   <Link
                     href="/wallet"
@@ -255,9 +323,21 @@ export function LuxuryNavbar() {
 
           {/* MOBILE MENU TOGGLE */}
           <div className="flex items-center gap-3 lg:hidden">
+            {/* Direct Admin button on mobile top if Boss */}
+            {isBossOrAdmin && (
+              <Link
+                href="/admin"
+                className="px-2.5 py-1 rounded-full bg-[#54252D] border border-[#C6A477] text-[11px] font-bold text-[#FAF7F1] flex items-center gap-1 shadow-md"
+              >
+                <Crown className="w-3 h-3 text-[#C6A477]" />
+                <span>Admin</span>
+              </Link>
+            )}
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-xl text-[#C6A477]"
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -267,29 +347,54 @@ export function LuxuryNavbar() {
 
       {/* MOBILE MENU OVERLAY */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#090706] border-b border-[#C6A477]/30 px-6 py-6 space-y-4">
+        <div className="lg:hidden bg-[#090706] border-b border-[#C6A477]/30 px-6 py-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          {/* Boss Admin Button on Mobile */}
+          {isBossOrAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#54252D] via-[#782434] to-[#54252D] border border-[#C6A477] text-xs font-bold text-[#FAF7F1] flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(198,164,119,0.3)] mb-2"
+            >
+              <Crown className="w-4 h-4 text-[#C6A477]" />
+              <span>👑 ADMIN PANELGA KIRISH (BOSS)</span>
+            </Link>
+          )}
+
           <div className="flex flex-col space-y-3">
             {mainLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-medium text-[#E9DDCA] hover:text-[#C6A477]"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === link.href ? 'text-[#C6A477] font-bold' : 'text-[#E9DDCA] hover:text-[#C6A477]'
+                }`}
               >
                 {link.label}
               </Link>
             ))}
           </div>
+
           <div className="pt-4 border-t border-[#C6A477]/20 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C6A477]/40">
-                <img src="/images/avatar-alexandr.jpg" alt="Alexandr" className="w-full h-full object-cover" />
+            {currentUser ? (
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C6A477]/40 bg-[#54252D]/40 flex items-center justify-center font-bold text-xs text-[#C6A477]">
+                  {currentUser.displayName ? currentUser.displayName[0].toUpperCase() : 'U'}
+                </div>
+                <div className="text-xs">
+                  <p className="font-semibold text-white">{currentUser.displayName || 'Investor'}</p>
+                  <p className="text-[10px] text-[#C6A477]">{currentUser.isBoss ? '👑 Boss' : `${currentUser.tier} Tier`}</p>
+                </div>
               </div>
-              <div className="text-xs">
-                <p className="font-semibold text-white">Alexandr</p>
-                <p className="text-[10px] text-[#C6A477]">Premium Member</p>
-              </div>
-            </div>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full py-2.5 rounded-xl bg-[#54252D] text-center text-xs font-bold text-white border border-[#C6A477]/40"
+              >
+                Akkauntga Kirish / Ro‘yxatdan O‘tish
+              </Link>
+            )}
           </div>
         </div>
       )}
