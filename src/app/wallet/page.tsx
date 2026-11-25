@@ -18,6 +18,7 @@ import { Modal } from '@/components/ui/Modal';
 import { LuxuryNavbar } from '@/components/one-of-one/LuxuryNavbar';
 import { LuxuryFooter } from '@/components/one-of-one/LuxuryFooter';
 import { AnimatedFinancialCard } from '@/components/wallet/AnimatedFinancialCard';
+import { WorldBankingCardsHub } from '@/components/wallet/WorldBankingCardsHub';
 import {
   Wallet,
   CreditCard,
@@ -453,6 +454,11 @@ export default function WalletPage() {
             subtitle={`Savings Rate: ${wallet?.netSavingsRatePercent || 0}%`}
             glow="none"
           />
+        </div>
+
+        {/* 3.5. World Banking, Click & Payme, Multi-Currency IBAN & Sovereign Cards Hub */}
+        <div className="my-8">
+          <WorldBankingCardsHub />
         </div>
 
         {/* 4. Connected Cards & Accounts Section */}

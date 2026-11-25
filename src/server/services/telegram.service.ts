@@ -482,6 +482,20 @@ ${detailLines}
           await this.handleQuizCommand(chatId, from.id);
           return { handled: true, command: '/quiz', chatId };
 
+        case '/cards':
+        case '/banking':
+          await this.handleCardsCommand(chatId, from.id);
+          return { handled: true, command: '/cards', chatId };
+
+        case '/payme':
+        case '/click':
+          await this.handlePaymeClickCommand(chatId, from.id);
+          return { handled: true, command: '/click', chatId };
+
+        case '/vaults':
+          await this.handleVaultsCommand(chatId);
+          return { handled: true, command: '/vaults', chatId };
+
         case '/pricing':
         case '/tarifs':
           await this.handlePricingCommand(chatId);
@@ -546,6 +560,31 @@ ${detailLines}
 
       if (data === 'cmd_quiz') {
         await this.handleQuizCommand(chatId, query.from.id);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data === 'cmd_cards' || data === 'cmd_banking') {
+        await this.handleCardsCommand(chatId, query.from.id);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data === 'cmd_payme' || data === 'cmd_click') {
+        await this.handlePaymeClickCommand(chatId, query.from.id);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data === 'cmd_vaults') {
+        await this.handleVaultsCommand(chatId);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data.startsWith('tier_info_')) {
+        await this.handleTierInfoCallback(chatId, data);
+        return { handled: true, command: data, chatId };
+      }
+
+      if (data.startsWith('buy_tier_')) {
+        await this.handleTierBuyCallback(chatId, data);
         return { handled: true, command: data, chatId };
       }
 
@@ -737,6 +776,10 @@ Siz <b>VELTRON</b> — Futuristic AI Finance rasmiy telemetriya tarmog‘iga ula
           [
             { text: '⚡ VELTRON App (Mini App)', web_app: { url: `${this.appUrl}/tma` } },
             { text: '💼 $100k Savdo Desk', callback_data: 'cmd_trade' },
+          ],
+          [
+            { text: '💳 Kartalar & Bank', callback_data: 'cmd_cards' },
+            { text: '⚡ Click & Payme', callback_data: 'cmd_payme' },
           ],
           [
             { text: '📈 Jonli Bozorlar', callback_data: 'cmd_markets' },
@@ -1018,24 +1061,22 @@ Platformadagi rasmiy 4 ta versiya:
 
 1️⃣ ◈ <b>TEKIN (FREE / EXPLORER)</b> — <code>$0 / oy</code>
    • 15% funksiyalar ochiq
-   • $10,000 demo kapital
-   • Kuniga 5 ta AI so‘rov
+   • $10,000 demo kapital • Kuniga 5 ta AI so‘rov
 
 2️⃣ ◈ <b>APEX PRO</b> — <code>$29 / oy</code> (350,000 so‘m)
    • 55% funksiyalar ochiq
-   • $100,000 demo kapital
-   • Barcha texnik indikatorlar va signallar
+   • $100,000 demo • Click/Payme 0% • 3 ta IBAN • 50 ta AI
 
 3️⃣ ◈ <b>ULTRA GROWTH</b> — <code>$79 / oy</code> (990,000 so‘m)
    • 85% funksiyalar ochiq
-   • $500,000 demo kapital
-   • Kvant tahlil, xedjlash va VIP Telegram kanali
+   • $500,000 demo • Cheksiz kartalar • 12.5% APY Vaults • VIP kanal
 
 4️⃣ ◈ <b>MAX SOVEREIGN VIP</b> — <code>$199 / oy</code> (2,500,000 so‘m)
    • <b>100% BARCHA IMKONIYATLAR TO‘LIQ OCHIQ!</b>
-   • $1,000,000+ cheksiz demo kapital
-   • 24/7 shaxsiy AI mentor va konsyerj xizmati
-   • Dasturchilar uchun API kirish
+   • Cheksiz kapital • Bespoke Titanium Jismoniy Karta
+   • 24/7 Shaxsiy Bankir & API Kirish
+
+Quyidagi tugmalar orqali har bir tarifga nimalar qo‘shilishini batafsil ko‘rishingiz mumkin:
 `;
 
     await this.sendMessage({
@@ -1044,10 +1085,279 @@ Platformadagi rasmiy 4 ta versiya:
       replyMarkup: {
         inline_keyboard: [
           [
-            { text: '💎 Tariflarni Saytda Ko‘rish & Xarid', web_app: { url: `${this.appUrl}/pricing` } },
+            { text: '💎 Pro: Nimalar Qo‘shiladi?', callback_data: 'tier_info_pro' },
+            { text: '🚀 Ultra: Nimalar Qo‘shiladi?', callback_data: 'tier_info_ultra' },
           ],
           [
-            { text: '🌐 Brauzerda Ochish', url: `${this.appUrl}/pricing` },
+            { text: '👑 Max: 100% Ochiq Nimalar Bor?', callback_data: 'tier_info_max' },
+          ],
+          [
+            { text: '💳 To‘g‘ridan-to‘g‘ri Xarid (Click, Payme, Stars)', web_app: { url: `${this.appUrl}/pricing` } },
+          ],
+          [
+            { text: '🌐 Saytda Ko‘rish', url: `${this.appUrl}/pricing` },
+            { text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' },
+          ],
+        ],
+      },
+    });
+  }
+
+  private static async handleTierInfoCallback(chatId: number, data: string) {
+    if (data === 'tier_info_pro') {
+      const text = `
+╔══════════════════════════════════════╗
+║   💎 APEX PRO TARIFI: NIMALAR BOR?   ║
+║     <i>Oylik: $29 (350,000 so‘m)</i>       ║
+╚══════════════════════════════════════╝
+
+Siz ushbu tarifni xarid qilganingizda, hisobingizga quyidagi imkoniyatlar darhol qo‘shiladi:
+
+• 💼 <b>$100,000 Demo Kapital</b> — Katta hajmda real bozorlarda mashq qilish
+• 💳 <b>Click & Payme To‘lovlar</b> — Kartadan-kartaga 0% komissiyada o‘tkazmalar
+• 🌍 <b>3 ta Xalqaro IBAN Hisob</b> — USD (JPMorgan), EUR (Deutsche Bank), UZS (Markaziy Bank)
+• 🧠 <b>50 ta AI So‘rov / kun</b> — Quantum AI moliyaviy mentor va tahlilchi
+• 📈 <b>Barcha Texnik Indikatorlar</b> — RSI, MACD, Bollinger Bands jonli
+• ⚡ <b>Telegram Narx Ogohlantirishlari</b> — Kripto va oltin o‘zgarishlari 24/7
+
+Qaysi to‘lov usuli orqali xarid qilishni xohlaysiz?
+`;
+      await this.sendMessage({
+        chatId,
+        text,
+        replyMarkup: {
+          inline_keyboard: [
+            [
+              { text: '⚡ Click (350,000 so‘m)', callback_data: 'buy_tier_pro_click' },
+              { text: '📱 Payme (350,000 so‘m)', callback_data: 'buy_tier_pro_payme' },
+            ],
+            [
+              { text: '⭐️ Telegram Stars (1,500 ⭐)', callback_data: 'buy_tier_pro_stars' },
+              { text: '🪙 Kripto USDT (29 USDT)', callback_data: 'buy_tier_pro_usdt' },
+            ],
+            [
+              { text: '💎 Sayt orqali To‘lash', web_app: { url: `${this.appUrl}/pricing` } },
+              { text: '🔙 Tariflar Ro‘yxati', callback_data: 'cmd_pricing' },
+            ],
+          ],
+        },
+      });
+      return;
+    }
+
+    if (data === 'tier_info_ultra') {
+      const text = `
+╔══════════════════════════════════════╗
+║  🚀 ULTRA GROWTH: NIMALAR BOR?       ║
+║     <i>Oylik: $79 (990,000 so‘m)</i>       ║
+╚══════════════════════════════════════╝
+
+Ushbu tarif bilan platformaning 85% professional imkoniyatlari to‘liq ochiladi:
+
+• 💼 <b>$500,000 Demo Kapital</b> — Kvant xedj fondi miqyosida savdo qilish
+• 💳 <b>Cheksiz Virtual Kartalar</b> — Uzcard, Humo, Visa Infinite, Mastercard
+• 💎 <b>High-Yield Vaults Omonatlar</b> — 12.5% dan 22.0% gacha yillik passiv daromad
+• 🧠 <b>Cheksiz AI Konsyerj</b> — Kuniga cheksiz moliya tahlillari va strategiyalar
+• 🔒 <b>Telegram VIP Yopiq Kanali</b> — Eng aniq kirish/chiqish savdo signallari
+• 📊 <b>Portfolio Stress-Test (VaR)</b> — Avtomatik xedjlash va xatarlarni boshqarish
+• 📑 <b>Eksport PDF & Excel</b> — Soliq va audit uchun professional hisobotlar
+
+Qaysi to‘lov usuli orqali xarid qilishni xohlaysiz?
+`;
+      await this.sendMessage({
+        chatId,
+        text,
+        replyMarkup: {
+          inline_keyboard: [
+            [
+              { text: '⚡ Click (990,000 so‘m)', callback_data: 'buy_tier_ultra_click' },
+              { text: '📱 Payme (990,000 so‘m)', callback_data: 'buy_tier_ultra_payme' },
+            ],
+            [
+              { text: '⭐️ Telegram Stars (4,000 ⭐)', callback_data: 'buy_tier_ultra_stars' },
+              { text: '🪙 Kripto USDT (79 USDT)', callback_data: 'buy_tier_ultra_usdt' },
+            ],
+            [
+              { text: '💎 Sayt orqali To‘lash', web_app: { url: `${this.appUrl}/pricing` } },
+              { text: '🔙 Tariflar Ro‘yxati', callback_data: 'cmd_pricing' },
+            ],
+          ],
+        },
+      });
+      return;
+    }
+
+    if (data === 'tier_info_max') {
+      const text = `
+╔══════════════════════════════════════╗
+║  👑 MAX SOVEREIGN VIP: NIMALAR BOR?  ║
+║    <i>Oylik: $199 (2,500,000 so‘m)</i>     ║
+╚══════════════════════════════════════╝
+
+🏛️ <b>100% BARCHA IMKONIYATLAR VA ELITA PRIVILEGIYALARI:</b>
+
+• 💼 <b>$1,000,000+ Cheksiz Kapital</b> — Barcha limitlar butunlay olib tashlanadi
+• 💳 <b>Bespoke Titanium Jismoniy Karta</b> — Qora metal 1-of-1 nufuzli karta (uyingizga bepul yetkaziladi)
+• 🌍 <b>Jahon Banklari & Multivalyuta</b> — 5 ta xalqaro IBAN, Click, Payme, SWIFT, SEPA
+• 🤵 <b>24/7 Shaxsiy VIP Bankir</b> — Shaxsiy konsyerj va portfolio kuratori
+• 🔌 <b>REST & Webhook API Kirish</b> — Shaxsiy savdo botlari va algoritmlarni ulash
+• ⚜️ <b>Boss-Level Suveren Nishon</b> — Butun platformada eng yuqori VIP maqom
+
+Qaysi to‘lov usuli orqali xarid qilishni xohlaysiz?
+`;
+      await this.sendMessage({
+        chatId,
+        text,
+        replyMarkup: {
+          inline_keyboard: [
+            [
+              { text: '⚡ Click (2,500,000 so‘m)', callback_data: 'buy_tier_max_click' },
+              { text: '📱 Payme (2,500,000 so‘m)', callback_data: 'buy_tier_max_payme' },
+            ],
+            [
+              { text: '⭐️ Telegram Stars (10,000 ⭐)', callback_data: 'buy_tier_max_stars' },
+              { text: '🪙 Kripto USDT (199 USDT)', callback_data: 'buy_tier_max_usdt' },
+            ],
+            [
+              { text: '💎 Sayt orqali To‘lash', web_app: { url: `${this.appUrl}/pricing` } },
+              { text: '🔙 Tariflar Ro‘yxati', callback_data: 'cmd_pricing' },
+            ],
+          ],
+        },
+      });
+      return;
+    }
+  }
+
+  private static async handleTierBuyCallback(chatId: number, data: string) {
+    const parts = data.split('_'); // buy_tier_pro_click
+    const tier = parts[2]?.toUpperCase() || 'PRO';
+    const method = parts[3]?.toUpperCase() || 'CLICK';
+
+    const text = `
+╔══════════════════════════════════════╗
+║       ✅ XARID INVOYSI YARATILDI      ║
+╚══════════════════════════════════════╝
+
+📌 <b>Tanlangan Tarif:</b> <code>${tier}</code>
+💳 <b>To‘lov Tizimi:</b> <code>${method}</code>
+🔒 <b>Xavfsizlik:</b> 256-Bit Bank Shifrlash
+
+To‘lovni amalga oshirish uchun quyidagi xavfsiz tugmani bosing. Mablag‘ tushgan zahoti tarifingiz avtomatik aktivlashadi va barcha funksiyalar ochiladi!
+`;
+
+    await this.sendMessage({
+      chatId,
+      text,
+      replyMarkup: {
+        inline_keyboard: [
+          [
+            { text: `⚡ ${method} orqali To‘lov Qilish`, web_app: { url: `${this.appUrl}/pricing?tier=${tier.toLowerCase()}&method=${method.toLowerCase()}` } },
+          ],
+          [
+            { text: '💎 Saytda Boshqarish', url: `${this.appUrl}/pricing` },
+            { text: '🔙 Tariflar', callback_data: 'cmd_pricing' },
+          ],
+        ],
+      },
+    });
+  }
+
+  private static async handleCardsCommand(chatId: number, telegramUserId: number) {
+    const text = `
+╔══════════════════════════════════════╗
+║  💳 ROYAL BANKING & KARTALAR 💳     ║
+╚══════════════════════════════════════╝
+
+Sizning so‘nggi ulangan kartalaringiz:
+1. 👑 <b>VELTRON Titanium Metal:</b> <code>•••• 9988</code> ($85,400.00)
+2. 🇺🇿 <b>Uzcard Platinum (Kapitalbank):</b> <code>8600 •••• 3042</code> (245,000,000 so‘m)
+3. 🇺🇿 <b>Humo Gold (Ipak Yo‘li):</b> <code>9860 •••• 6125</code> (68,500,000 so‘m)
+4. 🌍 <b>Visa Infinite (JPMorgan):</b> <code>•••• 4581</code> ($42,150.00)
+
+⚡ <b>Multivalyuta IBAN Hisoblar:</b>
+• 🇺🇸 USD: <code>US89 JPMC 0210 0002 1892 4410</code>
+• 🇺🇿 UZS: <code>2020 8000 7054 8920 1001</code>
+• 🇪🇺 EUR: <code>DE89 3704 0044 0532 0130 00</code>
+`;
+
+    await this.sendMessage({
+      chatId,
+      text,
+      replyMarkup: {
+        inline_keyboard: [
+          [
+            { text: '📱 Mini Appda Kartalarni Boshqarish', web_app: { url: `${this.appUrl}/wallet` } },
+          ],
+          [
+            { text: '⚡ Click / Payme O‘tkazma', callback_data: 'cmd_payme' },
+            { text: '💎 High-Yield Vaults', callback_data: 'cmd_vaults' },
+          ],
+          [
+            { text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' },
+          ],
+        ],
+      },
+    });
+  }
+
+  private static async handlePaymeClickCommand(chatId: number, telegramUserId: number) {
+    const text = `
+╔══════════════════════════════════════╗
+║   ⚡ CLICK & PAYME O‘TKAZMALAR ⚡   ║
+╚══════════════════════════════════════╝
+
+Tezkor P2P kartadan-kartaga o‘tkazmalar (Uzcard, Humo, Visa, Mastercard):
+• 0% ichki komissiya
+• Lahzali bank kliringi
+• Click Pass & Payme Go QR to‘lovlar
+
+Barcha o‘tkazmalar va xarajatlar tarixini Mini Appda qulay boshqaring:
+`;
+
+    await this.sendMessage({
+      chatId,
+      text,
+      replyMarkup: {
+        inline_keyboard: [
+          [
+            { text: '⚡ Click / Payme O‘tkazmani Ochish', web_app: { url: `${this.appUrl}/wallet` } },
+          ],
+          [
+            { text: '💳 Kartalarim', callback_data: 'cmd_cards' },
+            { text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' },
+          ],
+        ],
+      },
+    });
+  }
+
+  private static async handleVaultsCommand(chatId: number) {
+    const text = `
+╔══════════════════════════════════════╗
+║    💎 HIGH-YIELD OMONAT VAULTS 💎    ║
+╚══════════════════════════════════════╝
+
+Passiv daromad keltiruvchi suveren omonat hamyonlari (Daromad kunlik hisoblanadi):
+
+1. 🇺🇿 <b>UZS Milliy Omonat:</b> <code>22.0% APY</code>
+2. 💵 <b>USD Sovereign Vault:</b> <code>12.5% APY</code>
+3. 🪙 <b>USDT Liquid Stable:</b> <code>14.8% APY</code>
+4. 🏆 <b>Oltin Quymalar (XAU):</b> <code>8.2% APY</code>
+
+To‘liq daromad kalkulyatori va depozit boshqaruvi:
+`;
+
+    await this.sendMessage({
+      chatId,
+      text,
+      replyMarkup: {
+        inline_keyboard: [
+          [
+            { text: '💎 Omonat Vaultlarni Ochish', web_app: { url: `${this.appUrl}/wallet` } },
+          ],
+          [
+            { text: '💳 Kartalarim', callback_data: 'cmd_cards' },
             { text: '🔙 Asosiy Menyu', callback_data: 'cmd_help' },
           ],
         ],
@@ -1355,6 +1665,9 @@ Quyidagi buyruqlar orqali platformaning barcha modullarini boshqarishingiz mumki
 
 🛰️ <b>/app</b> — Telegram Mini App terminalini ochish
 💼 <b>/trade</b> — $100k Demo savdo stoli
+💳 <b>/cards</b> — Jahon kartalari & Multivalyuta IBAN
+⚡ <b>/payme</b> yoki <b>/click</b> — 0% P2P to‘lovlar va kartadan-kartaga
+💎 <b>/vaults</b> — 12.5% - 22.0% APY Omonatlar
 📈 <b>/markets</b> — Jonli bozorlar (BTC, ETH, Oltin, S&P 500)
 📊 <b>/portfolio</b> — Balans va investitsiyalar holati
 🧠 <b>/ai</b> — Quantum AI moliyaviy maslahatchi
@@ -1376,6 +1689,10 @@ ${isBoss ? '👑 <b>/admin</b> — Boss Admin boshqaruv paneli\n' : ''}ℹ️ <b
           [
             { text: '⚡ VELTRON App (Mini App)', web_app: { url: `${this.appUrl}/tma` } },
             { text: '💼 $100k Savdo Desk', callback_data: 'cmd_trade' },
+          ],
+          [
+            { text: '💳 Kartalar & Bank', callback_data: 'cmd_cards' },
+            { text: '⚡ Click & Payme', callback_data: 'cmd_payme' },
           ],
           [
             { text: '📈 Jonli Bozorlar', callback_data: 'cmd_markets' },

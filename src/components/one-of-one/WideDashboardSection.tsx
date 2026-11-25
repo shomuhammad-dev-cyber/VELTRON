@@ -70,7 +70,7 @@ export function WideDashboardSection() {
     { id: 'ai-assistant', label: 'AI Assistant', icon: Sparkles, href: '/ai-assistant' },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp, href: '/analytics' },
     { id: 'ranking', label: 'Ranking', icon: Trophy, href: '/ranking' },
-    { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard' },
+    { id: 'settings', label: 'Settings', icon: Settings, href: '/settings' },
   ];
 
   const marketAssets = [

@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  ChevronRight,
   Bell,
   Globe,
   Check,
@@ -29,12 +30,22 @@ import {
   Crown,
   ShieldCheck,
   Gem,
+  LayoutDashboard,
+  BarChart3,
+  ArrowLeftRight,
+  PieChart,
+  GraduationCap,
+  TrendingUp,
+  Search,
+  Wallet,
+  Zap,
 } from 'lucide-react';
 
 export function LuxuryNavbar() {
   const { locale, setLocale } = useLanguage();
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerSearch, setDrawerSearch] = useState('');
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -58,6 +69,19 @@ export function LuxuryNavbar() {
     };
   }, []);
 
+  // Close drawer when route changes or ESC is pressed
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDrawerOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const isBossOrAdmin =
     Boolean(currentUser?.isBoss) ||
     currentUser?.role === 'SYSTEM_ADMIN' ||
@@ -73,6 +97,23 @@ export function LuxuryNavbar() {
     { href: '/ai-assistant', label: 'AI Assistant' },
   ];
 
+  // Exact 9 Core Menu Items from Target Image & WideDashboard
+  const coreMenuItems = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/markets', label: 'Markets', icon: BarChart3 },
+    { href: '/trading', label: 'Trading', icon: ArrowLeftRight },
+    { href: '/wallet', label: 'Portfolio', icon: PieChart },
+    { href: '/education', label: 'Education', icon: GraduationCap },
+    { href: '/ai-assistant', label: 'AI Assistant', icon: Sparkles },
+    { href: '/analytics', label: 'Analytics', icon: TrendingUp },
+    { href: '/ranking', label: 'Ranking', icon: Trophy },
+    { href: '/settings', label: 'Settings', icon: Settings },
+  ];
+
+  const filteredCoreItems = coreMenuItems.filter((item) =>
+    item.label.toLowerCase().includes(drawerSearch.toLowerCase())
+  );
+
   const languages = [
     { code: 'en', label: 'EN', name: 'English' },
     { code: 'uz', label: 'UZ', name: "O'zbekcha" },
@@ -83,16 +124,28 @@ export function LuxuryNavbar() {
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
 
   return (
-    <nav className="sticky top-0 z-50 h-[75px] bg-[#090706]/92 backdrop-blur-md border-b border-[#C6A477]/15 text-[#E9DDCA] transition-all flex flex-col justify-center select-none">
+    <nav className="sticky top-0 z-50 h-[75px] bg-[#090706]/95 backdrop-blur-md border-b border-[#C6A477]/15 text-[#E9DDCA] transition-all flex flex-col justify-center select-none">
       {/* Precision Champagne Coachline Top Accent */}
       <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#C6A477]/35 to-transparent absolute top-0 left-0" />
 
       <div className="max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[74px]">
-          {/* LEFT: VELTRON Monogram & Wordmark */}
-          <Link href="/" className="flex items-center gap-3 shrink-0">
-            <VeltronLogo size="md" />
-          </Link>
+          {/* LEFT: VELTRON Monogram & Wordmark + Burger Trigger */}
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-3 shrink-0">
+              <VeltronLogo size="md" />
+            </Link>
+
+            {/* Desktop Quick Drawer Button */}
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#18100E] border border-[#C6A477]/35 hover:border-[#C6A477] text-xs font-semibold text-[#E9DDCA] hover:text-[#FAF7F1] transition-all shadow-[0_0_12px_rgba(198,164,119,0.12)] hover:scale-105 cursor-pointer"
+              title="Barcha bo‘limlar va menyuni ochish"
+            >
+              <Menu className="w-3.5 h-3.5 text-[#C6A477]" />
+              <span className="font-manrope">Boshqaruv</span>
+            </button>
+          </div>
 
           {/* CENTER: Exact Navigation Links */}
           <div className="hidden lg:flex items-center gap-7 text-[13px] tracking-wide font-manrope font-medium text-[#C9BEB2]">
@@ -167,22 +220,23 @@ export function LuxuryNavbar() {
             </div>
           </div>
 
-          {/* RIGHT: Language Selector, Notification Icon, Alexandr User Profile */}
-          <div className="hidden lg:flex items-center gap-4 shrink-0">
+          {/* RIGHT: Boss Badge, Language, Notification, User Profile, Burger Menu Button */}
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             {/* ONLY VISIBLE TO BOSS OR ADMINS: Royal Glowing Admin Panel Button */}
             {isBossOrAdmin && (
               <Link
                 href="/admin"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#54252D] via-[#782434] to-[#54252D] border border-[#C6A477]/70 text-xs font-bold text-[#FAF7F1] shadow-[0_0_18px_rgba(198,164,119,0.35)] hover:scale-105 transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#54252D] via-[#782434] to-[#54252D] border border-[#C6A477]/70 text-xs font-bold text-[#FAF7F1] shadow-[0_0_18px_rgba(198,164,119,0.35)] hover:scale-105 transition-all"
                 title="Sovereign Enterprise Administration"
               >
                 <Crown className="w-3.5 h-3.5 text-[#C6A477]" />
-                <span>👑 Admin Panel</span>
+                <span className="hidden sm:inline">👑 Admin Panel</span>
+                <span className="sm:hidden">👑 Admin</span>
               </Link>
             )}
 
-            {/* Language Selector: Globe + EN v */}
-            <div className="relative">
+            {/* Language Selector: Globe + EN v (Desktop) */}
+            <div className="relative hidden md:block">
               <button
                 onClick={() => setLangDropdownOpen(!langDropdownOpen)}
                 className="flex items-center gap-1.5 text-xs text-[#C9BEB2] hover:text-white transition-colors py-1 px-2 rounded-lg hover:bg-white/5"
@@ -216,7 +270,7 @@ export function LuxuryNavbar() {
             </div>
 
             {/* Notification Bell Icon */}
-            <div className="relative">
+            <div className="relative hidden sm:block">
               <button
                 onClick={() => setNotificationOpen(!notificationOpen)}
                 className="p-1.5 rounded-lg text-[#C9BEB2] hover:text-[#C6A477] transition-colors relative"
@@ -243,13 +297,12 @@ export function LuxuryNavbar() {
             </div>
 
             {/* User Profile Pill or Login Button */}
-            <div className="relative">
+            <div className="relative hidden sm:block">
               {currentUser ? (
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="flex items-center gap-2.5 pl-1.5 pr-2 py-1 rounded-full hover:bg-white/5 transition-all cursor-pointer"
+                  className="flex items-center gap-2 pl-1.5 pr-2 py-1 rounded-full hover:bg-white/5 transition-all cursor-pointer"
                 >
-                  {/* Circular photo avatar */}
                   <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C6A477]/40 shrink-0 bg-[#54252D]/40 flex items-center justify-center font-bold text-xs text-[#C6A477]">
                     {currentUser.avatarUrl ? (
                       <img
@@ -261,8 +314,6 @@ export function LuxuryNavbar() {
                       <span>{currentUser.displayName ? currentUser.displayName[0].toUpperCase() : 'U'}</span>
                     )}
                   </div>
-
-                  {/* Profile text */}
                   <div className="text-left leading-tight">
                     <div className="flex items-center gap-1 text-xs font-medium text-white">
                       <span>{currentUser.displayName || 'Investor'}</span>
@@ -314,88 +365,217 @@ export function LuxuryNavbar() {
                     href="/wallet"
                     className="block px-3 py-2 text-xs text-[#E9DDCA] hover:bg-[#481B24]/40 rounded-lg transition-colors"
                   >
-                    Asset Vaults
+                    Royal Banking & Cards
                   </Link>
                 </div>
               )}
             </div>
-          </div>
 
-          {/* MOBILE MENU TOGGLE */}
-          <div className="flex items-center gap-3 lg:hidden">
-            {/* Direct Admin button on mobile top if Boss */}
-            {isBossOrAdmin && (
-              <Link
-                href="/admin"
-                className="px-2.5 py-1 rounded-full bg-[#54252D] border border-[#C6A477] text-[11px] font-bold text-[#FAF7F1] flex items-center gap-1 shadow-md"
-              >
-                <Crown className="w-3 h-3 text-[#C6A477]" />
-                <span>Admin</span>
-              </Link>
-            )}
-
+            {/* UNIVERSAL BURGER MENU BUTTON (VISIBLE EVERYWHERE) */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-[#C6A477]"
-              aria-label="Toggle menu"
+              onClick={() => setDrawerOpen(true)}
+              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-[#1A1210] border border-[#C6A477]/40 hover:border-[#C6A477] text-[#C6A477] hover:text-white flex items-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer"
+              aria-label="Open sovereign menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              <Menu className="w-5 h-5" />
+              <span className="hidden sm:inline text-xs font-semibold text-[#E9DDCA]">Menyu</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* MOBILE MENU OVERLAY */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#090706] border-b border-[#C6A477]/30 px-6 py-6 space-y-4 max-h-[80vh] overflow-y-auto">
-          {/* Boss Admin Button on Mobile */}
-          {isBossOrAdmin && (
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#54252D] via-[#782434] to-[#54252D] border border-[#C6A477] text-xs font-bold text-[#FAF7F1] flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(198,164,119,0.3)] mb-2"
-            >
-              <Crown className="w-4 h-4 text-[#C6A477]" />
-              <span>👑 ADMIN PANELGA KIRISH (BOSS)</span>
-            </Link>
-          )}
+      {/* ============================================================================== */}
+      {/* SOVEREIGN ROYAL COMMAND DRAWER (INTEGRATED EXACT 9 CORE ITEMS FROM SCREENSHOT)  */}
+      {/* ============================================================================== */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-[100] flex justify-end animate-in fade-in duration-200">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+            onClick={() => setDrawerOpen(false)}
+          />
 
-          <div className="flex flex-col space-y-3">
-            {mainLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`text-sm font-medium transition-colors ${
-                  pathname === link.href ? 'text-[#C6A477] font-bold' : 'text-[#E9DDCA] hover:text-[#C6A477]'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+          {/* Drawer Panel */}
+          <aside className="relative z-[101] w-full max-w-[380px] bg-[#0C0807] border-l border-[#C6A477]/35 shadow-[-16px_0_50px_rgba(0,0,0,0.8)] h-full flex flex-col justify-between overflow-y-auto p-5 sm:p-6 text-[#E9DDCA]">
+            <div>
+              {/* Header: Logo + Close */}
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#C6A477]/20">
+                <Link href="/" onClick={() => setDrawerOpen(false)}>
+                  <VeltronLogo size="sm" showTagline={true} />
+                </Link>
+                <button
+                  onClick={() => setDrawerOpen(false)}
+                  className="p-1.5 rounded-lg text-[#C6A477]/70 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-          <div className="pt-4 border-t border-[#C6A477]/20 flex items-center justify-between">
-            {currentUser ? (
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C6A477]/40 bg-[#54252D]/40 flex items-center justify-center font-bold text-xs text-[#C6A477]">
-                  {currentUser.displayName ? currentUser.displayName[0].toUpperCase() : 'U'}
+              {/* Boss Admin Quick Banner (If Boss) */}
+              {isBossOrAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-full py-2.5 px-3 mb-4 rounded-xl bg-gradient-to-r from-[#54252D] via-[#782434] to-[#54252D] border border-[#C6A477] text-xs font-bold text-[#FAF7F1] flex items-center justify-between shadow-[0_0_15px_rgba(198,164,119,0.3)] hover:scale-[1.02] transition-transform"
+                >
+                  <div className="flex items-center gap-2">
+                    <Crown className="w-4 h-4 text-[#C6A477]" />
+                    <span>👑 BOSS ADMIN BOSHQARUV</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#C6A477]" />
+                </Link>
+              )}
+
+              {/* Search Filter */}
+              <div className="relative mb-5">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#C6A477]/60" />
+                <input
+                  type="text"
+                  placeholder="Bo‘lim qidirish..."
+                  value={drawerSearch}
+                  onChange={(e) => setDrawerSearch(e.target.value)}
+                  className="w-full bg-[#170F0D] border border-[#C6A477]/30 rounded-xl pl-9 pr-3 py-2 text-xs text-[#E9DDCA] placeholder-[#E9DDCA]/40 focus:outline-none focus:border-[#C6A477] transition-colors"
+                />
+              </div>
+
+              {/* SECTION TITLE: EXACT CORE NAVIGATION FROM SCREENSHOT */}
+              <div className="text-[10px] font-manrope tracking-[0.25em] text-[#C6A477] uppercase font-bold mb-2.5 px-2 flex items-center justify-between">
+                <span>SOVEREIGN CORE MENU</span>
+                <span className="text-[9px] text-[#A89888] font-normal">9 Modul</span>
+              </div>
+
+              {/* The EXACT 9 Menu Items from Target Screenshot */}
+              <nav className="space-y-1.5 mb-6">
+                {filteredCoreItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setDrawerOpen(false)}
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-manrope font-medium transition-all ${
+                        isActive
+                          ? 'bg-gradient-to-r from-[#D6BB92] to-[#B8986B] text-[#120E0C] font-bold shadow-md'
+                          : 'text-[#8E8278] hover:text-[#FAF7F1] hover:bg-[#1A1210]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#120E0C]' : 'text-[#8E8278]'}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {isActive ? (
+                        <div className="w-2 h-2 rounded-full bg-[#120E0C]" />
+                      ) : (
+                        <ChevronRight className="w-3.5 h-3.5 text-[#5A5048]" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* EXTRA POWERHOUSE BANKING & VIP TIERS */}
+              <div className="text-[10px] font-manrope tracking-[0.25em] text-[#C6A477] uppercase font-bold mb-2.5 px-2">
+                BANKING & VIP SERVISLAR
+              </div>
+              <div className="space-y-1.5 mb-6">
+                <Link
+                  href="/wallet"
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-manrope font-medium text-[#FAF7F1] bg-[#1A1113] border border-[#C6A477]/30 hover:border-[#C6A477] hover:bg-[#281419] transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="w-4 h-4 text-[#C6A477]" />
+                    <div>
+                      <p className="font-semibold text-white">Royal Banking & Kartalar</p>
+                      <p className="text-[10px] text-[#A89888]">Click, Payme, Visa, IBAN</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#C6A477]" />
+                </Link>
+
+                <Link
+                  href="/pricing"
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-manrope font-medium text-[#FAF7F1] bg-[#16120E] border border-[#C6A477]/30 hover:border-[#C6A477] hover:bg-[#221A13] transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <Gem className="w-4 h-4 text-[#C6A477]" />
+                    <div>
+                      <p className="font-semibold text-white">Tariflar & VIP Paketlar</p>
+                      <p className="text-[10px] text-[#A89888]">Free, Pro, Ultra, Max (100%)</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#C6A477]" />
+                </Link>
+              </div>
+
+              {/* LANGUAGE SELECTOR IN DRAWER */}
+              <div className="mb-4">
+                <div className="text-[10px] font-manrope tracking-[0.2em] text-[#A89888] uppercase mb-2 px-2">
+                  Tilni tanlang (Language)
                 </div>
-                <div className="text-xs">
-                  <p className="font-semibold text-white">{currentUser.displayName || 'Investor'}</p>
-                  <p className="text-[10px] text-[#C6A477]">{currentUser.isBoss ? '👑 Boss' : `${currentUser.tier} Tier`}</p>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {languages.map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => setLocale(l.code as any)}
+                      className={`py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        locale === l.code
+                          ? 'bg-[#54252D] text-[#C6A477] border border-[#C6A477]/50'
+                          : 'bg-[#170F0D] text-[#A89888] hover:text-white'
+                      }`}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
                 </div>
               </div>
-            ) : (
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 rounded-xl bg-[#54252D] text-center text-xs font-bold text-white border border-[#C6A477]/40"
-              >
-                Akkauntga Kirish / Ro‘yxatdan O‘tish
-              </Link>
-            )}
-          </div>
+            </div>
+
+            {/* DRAWER FOOTER: PROFILE / LOGIN + SECURITY */}
+            <div className="pt-4 border-t border-[#C6A477]/20 space-y-3">
+              {currentUser ? (
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#170F0D] border border-[#C6A477]/20">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C6A477]/40 bg-[#54252D]/40 flex items-center justify-center font-bold text-xs text-[#C6A477]">
+                      {currentUser.displayName ? currentUser.displayName[0].toUpperCase() : 'U'}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-white">{currentUser.displayName || 'Investor'}</p>
+                      <p className="text-[10px] text-[#C6A477] font-medium">
+                        {currentUser.isBoss ? '👑 Boss (Admin)' : `${currentUser.tier || 'Free'} Tier`}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setDrawerOpen(false)}
+                    className="text-[11px] text-[#C6A477] hover:underline"
+                  >
+                    Profil
+                  </Link>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-full py-2.5 rounded-xl bg-[#54252D] hover:bg-[#682D38] text-center text-xs font-bold text-white border border-[#C6A477]/50 block shadow-md transition-colors"
+                >
+                  Akkauntga Kirish / Ro‘yxatdan O‘tish
+                </Link>
+              )}
+
+              <div className="flex items-center justify-between text-[10px] text-[#5A5048] font-manrope">
+                <span>VELTRON Sovereign OS</span>
+                <span className="flex items-center gap-1 text-[#C6A477]">
+                  <ShieldCheck className="w-3 h-3" />
+                  256-Bit SSL
+                </span>
+              </div>
+            </div>
+          </aside>
         </div>
       )}
     </nav>
