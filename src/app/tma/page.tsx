@@ -33,7 +33,42 @@ import {
   Lock,
   ChevronRight,
   TrendingDown,
+  Menu,
+  X,
+  CreditCard,
+  PieChart,
+  Settings,
 } from 'lucide-react';
+
+function DashboardGridIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+    </svg>
+  );
+}
+
+function TradingArrowsIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M8 3L4 7l4 4" />
+      <path d="M4 7h16" />
+      <path d="M16 21l4-4-4-4" />
+      <path d="M20 17H4" />
+    </svg>
+  );
+}
+
+function RoyalCrownIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
+    </svg>
+  );
+}
 
 type TabKey = 'dashboard' | 'markets' | 'analytics' | 'education' | 'ranking' | 'settings';
 
@@ -53,6 +88,7 @@ export default function TelegramMiniAppPage() {
   } = useTelegramWebApp();
 
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [userSession, setUserSession] = useState<any>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -231,8 +267,230 @@ export default function TelegramMiniAppPage() {
           >
             <Globe className="w-4 h-4" />
           </button>
+
+          {/* Universal Burger Menu Button for TMA */}
+          <button
+            onClick={() => {
+              haptic.impact('light');
+              setDrawerOpen(true);
+            }}
+            className="p-1.5 px-2 rounded-lg bg-[#241512] border border-[#C6A477]/50 text-[#C6A477] hover:text-[#FAF7F1] transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+            title="Boshqaruv menyusini ochish"
+          >
+            <Menu className="w-4 h-4" />
+            <span className="text-[10px] font-bold text-[#E9DDCA]">Menyu</span>
+          </button>
         </div>
       </header>
+
+      {/* ============================================================================== */}
+      {/* TMA SOVEREIGN COMMAND DRAWER (EXACT 9 CORE ITEMS FROM USER SCREENSHOT)        */}
+      {/* ============================================================================== */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-200">
+          <div
+            className="fixed inset-0 bg-black/85 backdrop-blur-md"
+            onClick={() => setDrawerOpen(false)}
+          />
+
+          <aside className="relative z-50 w-[85%] max-w-[340px] bg-[#0C0807] border-l border-[#C6A477]/35 shadow-2xl h-full flex flex-col justify-between overflow-y-auto p-5 text-[#FAF7F1]">
+            <div>
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#C6A477]/20">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#54252D] border border-[#C6A477]/40 flex items-center justify-center font-serif font-bold text-[#C6A477] text-xs">
+                    V
+                  </div>
+                  <div>
+                    <span className="font-serif font-bold text-xs text-[#FAF7F1] block">VELTRON</span>
+                    <span className="text-[8px] font-mono text-[#C6A477] tracking-wider uppercase">COMMAND MENU</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setDrawerOpen(false)}
+                  className="p-1.5 rounded-lg text-[#C6A477] hover:bg-white/5 cursor-pointer"
+                  aria-label="Yopish"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Boss Admin Quick Access */}
+              {userSession?.isBoss && (
+                <Link
+                  href="/admin"
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-full py-2.5 px-3 mb-4 rounded-xl bg-gradient-to-r from-[#54252D] via-[#782434] to-[#54252D] border border-[#C6A477] text-xs font-bold text-[#FAF7F1] flex items-center justify-between shadow-[0_0_15px_rgba(198,164,119,0.3)] hover:scale-[1.02] transition-transform"
+                >
+                  <div className="flex items-center gap-2">
+                    <RoyalCrownIcon className="w-4 h-4 text-[#C6A477]" />
+                    <span>👑 BOSS ADMIN BOSHQARUV</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#C6A477]" />
+                </Link>
+              )}
+
+              {/* Section Header */}
+              <div className="text-[10px] font-mono tracking-widest text-[#C6A477] uppercase font-bold mb-3 px-2 flex items-center justify-between">
+                <span>PORTAL BO‘LIMLARI</span>
+                <span className="text-[9px] text-[#A89888]">9 Modul</span>
+              </div>
+
+              {/* Exact 9 Core Menu Items matching screenshot */}
+              <nav className="space-y-1.5 mb-5">
+                {[
+                  {
+                    id: 'dashboard',
+                    label: 'Dashboard',
+                    icon: DashboardGridIcon,
+                    action: () => {
+                      setActiveTab('dashboard');
+                      setDrawerOpen(false);
+                    },
+                    isActive: activeTab === 'dashboard',
+                  },
+                  {
+                    id: 'markets',
+                    label: 'Markets',
+                    icon: BarChart2,
+                    action: () => {
+                      setActiveTab('markets');
+                      setDrawerOpen(false);
+                    },
+                    isActive: activeTab === 'markets',
+                  },
+                  {
+                    id: 'trading',
+                    label: 'Trading',
+                    icon: TradingArrowsIcon,
+                    action: () => {
+                      window.location.href = '/trading';
+                    },
+                    isActive: false,
+                  },
+                  {
+                    id: 'portfolio',
+                    label: 'Portfolio',
+                    icon: PieChart,
+                    action: () => {
+                      window.location.href = '/wallet';
+                    },
+                    isActive: false,
+                  },
+                  {
+                    id: 'education',
+                    label: 'Education',
+                    icon: GraduationCap,
+                    action: () => {
+                      setActiveTab('education');
+                      setDrawerOpen(false);
+                    },
+                    isActive: activeTab === 'education',
+                  },
+                  {
+                    id: 'ai-assistant',
+                    label: 'AI Assistant',
+                    icon: Sparkles,
+                    action: () => {
+                      window.location.href = '/ai-assistant';
+                    },
+                    isActive: false,
+                  },
+                  {
+                    id: 'analytics',
+                    label: 'Analytics',
+                    icon: TrendingUp,
+                    action: () => {
+                      setActiveTab('analytics');
+                      setDrawerOpen(false);
+                    },
+                    isActive: activeTab === 'analytics',
+                  },
+                  {
+                    id: 'ranking',
+                    label: 'Ranking',
+                    icon: Trophy,
+                    action: () => {
+                      setActiveTab('ranking');
+                      setDrawerOpen(false);
+                    },
+                    isActive: activeTab === 'ranking',
+                  },
+                  {
+                    id: 'settings',
+                    label: 'Settings',
+                    icon: Settings,
+                    action: () => {
+                      setActiveTab('settings');
+                      setDrawerOpen(false);
+                    },
+                    isActive: activeTab === 'settings',
+                  },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        haptic.selection();
+                        item.action();
+                      }}
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-sans font-medium transition-all text-left ${
+                        item.isActive
+                          ? 'bg-gradient-to-r from-[#D6BB92] to-[#B8986B] text-[#120E0C] font-bold shadow-md'
+                          : 'text-[#8E8278] hover:text-[#FAF7F1] hover:bg-[#1A1210]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-4 h-4 shrink-0 ${item.isActive ? 'text-[#120E0C]' : 'text-[#8E8278]'}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.isActive ? (
+                        <div className="w-2 h-2 rounded-full bg-[#120E0C]" />
+                      ) : (
+                        <ChevronRight className="w-3.5 h-3.5 text-[#5A5048]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* Banking & VIP Shortcuts */}
+              <div className="pt-3 border-t border-[#C6A477]/20 space-y-2">
+                <Link
+                  href="/wallet"
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#170E0C] border border-[#C6A477]/30 text-xs text-[#FAF7F1] hover:border-[#C6A477]"
+                >
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-[#C6A477]" />
+                    <span className="font-semibold">Royal Banking & Kartalar</span>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#C6A477]" />
+                </Link>
+
+                <Link
+                  href="/pricing"
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#170E0C] border border-[#C6A477]/30 text-xs text-[#FAF7F1] hover:border-[#C6A477]"
+                >
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-400" />
+                    <span className="font-semibold">Tariflar (VIP Paketlar)</span>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#C6A477]" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Footer in Drawer */}
+            <div className="pt-4 border-t border-[#C6A477]/15 text-center text-[10px] text-[#A89888]">
+              <p>VELTRON • Sovereign Platform v3.5</p>
+              <p className="text-[9px] text-[#C6A477]/70">Zero-Knowledge AES-256 Himoyalangan</p>
+            </div>
+          </aside>
+        </div>
+      )}
 
       {/* Floating Toast Notification */}
       {toastMessage && (
