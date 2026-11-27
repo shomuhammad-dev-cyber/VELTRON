@@ -11,7 +11,6 @@ import {
   CreditCard,
   Building2,
   Landmark,
-  ArrowRightLeft,
   Send,
   Download,
   Plus,
@@ -19,7 +18,6 @@ import {
   Eye,
   EyeOff,
   Lock,
-  Unlock,
   CheckCircle2,
   Copy,
   Check,
@@ -28,8 +26,7 @@ import {
   Sparkles,
   Zap,
   Globe,
-  Sliders,
-  QrCode,
+  SlidersHorizontal,
   Smartphone,
   FileText,
   Printer,
@@ -38,8 +35,29 @@ import {
   RefreshCw,
   Clock,
   ArrowUpRight,
-  ArrowDownLeft,
+  ArrowDownRight,
+  ArrowRight,
 } from 'lucide-react';
+
+function UnlockIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+    </svg>
+  );
+}
+
+function QrCodeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <path d="M14 14h3v3h-3zM17 17h4v4h-4zM14 20h3v1h-3zM20 14h1v3h-1z" />
+    </svg>
+  );
+}
 
 interface BankCard {
   id: string;
@@ -599,7 +617,7 @@ export function WorldBankingCardsHub() {
               >
                 {selectedCard.isFrozen ? (
                   <>
-                    <Unlock className="w-4 h-4 text-blue-400" />
+                    <UnlockIcon className="w-4 h-4 text-blue-400" />
                     <span>Muzdan Yechish</span>
                   </>
                 ) : (
@@ -1090,7 +1108,7 @@ export function WorldBankingCardsHub() {
       {activeTab === 'qr' && (
         <div className="max-w-md mx-auto p-6 rounded-3xl bg-[#140E0D] border border-[#C6A477]/35 text-center space-y-4 relative z-10">
           <div className="inline-flex p-3 rounded-2xl bg-[#54252D]/40 border border-[#C6A477]/40">
-            <QrCode className="w-8 h-8 text-[#C6A477]" />
+            <QrCodeIcon className="w-8 h-8 text-[#C6A477]" />
           </div>
           <div>
             <h3 className="text-base font-bold text-[#FAF7F1]">Click Pass & Payme Go</h3>
@@ -1102,7 +1120,7 @@ export function WorldBankingCardsHub() {
           <div className="p-4 bg-white rounded-2xl max-w-[220px] mx-auto shadow-2xl">
             {/* Simulated Dynamic QR Code */}
             <div className="w-full aspect-square bg-[#090706] rounded-xl flex flex-col items-center justify-center p-3 text-white">
-              <QrCode className="w-36 h-36 text-white" />
+              <QrCodeIcon className="w-36 h-36 text-white" />
               <p className="text-[9px] font-mono tracking-widest text-[#C6A477] mt-1">
                 VELTRON-PASS-9988
               </p>

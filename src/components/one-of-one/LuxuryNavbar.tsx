@@ -27,12 +27,8 @@ import {
   Settings,
   Sparkles,
   ExternalLink,
-  Crown,
   ShieldCheck,
-  Gem,
-  LayoutDashboard,
   BarChart3,
-  ArrowLeftRight,
   PieChart,
   GraduationCap,
   TrendingUp,
@@ -40,6 +36,36 @@ import {
   Wallet,
   Zap,
 } from 'lucide-react';
+
+function DashboardIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+    </svg>
+  );
+}
+
+function TradingIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M8 3L4 7l4 4" />
+      <path d="M4 7h16" />
+      <path d="M16 21l4-4-4-4" />
+      <path d="M20 17H4" />
+    </svg>
+  );
+}
+
+function CrownIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
+    </svg>
+  );
+}
 
 export function LuxuryNavbar() {
   const { locale, setLocale } = useLanguage();
@@ -99,9 +125,9 @@ export function LuxuryNavbar() {
 
   // Exact 9 Core Menu Items from Target Image & WideDashboard
   const coreMenuItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard', label: 'Dashboard', icon: DashboardIcon },
     { href: '/markets', label: 'Markets', icon: BarChart3 },
-    { href: '/trading', label: 'Trading', icon: ArrowLeftRight },
+    { href: '/trading', label: 'Trading', icon: TradingIcon },
     { href: '/wallet', label: 'Portfolio', icon: PieChart },
     { href: '/education', label: 'Education', icon: GraduationCap },
     { href: '/ai-assistant', label: 'AI Assistant', icon: Sparkles },
@@ -229,7 +255,7 @@ export function LuxuryNavbar() {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#54252D] via-[#782434] to-[#54252D] border border-[#C6A477]/70 text-xs font-bold text-[#FAF7F1] shadow-[0_0_18px_rgba(198,164,119,0.35)] hover:scale-105 transition-all"
                 title="Sovereign Enterprise Administration"
               >
-                <Crown className="w-3.5 h-3.5 text-[#C6A477]" />
+                <CrownIcon className="w-3.5 h-3.5 text-[#C6A477]" />
                 <span className="hidden sm:inline">👑 Admin Panel</span>
                 <span className="sm:hidden">👑 Admin</span>
               </Link>
@@ -420,7 +446,7 @@ export function LuxuryNavbar() {
                   className="w-full py-2.5 px-3 mb-4 rounded-xl bg-gradient-to-r from-[#54252D] via-[#782434] to-[#54252D] border border-[#C6A477] text-xs font-bold text-[#FAF7F1] flex items-center justify-between shadow-[0_0_15px_rgba(198,164,119,0.3)] hover:scale-[1.02] transition-transform"
                 >
                   <div className="flex items-center gap-2">
-                    <Crown className="w-4 h-4 text-[#C6A477]" />
+                    <CrownIcon className="w-4 h-4 text-[#C6A477]" />
                     <span>👑 BOSS ADMIN BOSHQARUV</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-[#C6A477]" />
@@ -501,7 +527,7 @@ export function LuxuryNavbar() {
                   className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-manrope font-medium text-[#FAF7F1] bg-[#16120E] border border-[#C6A477]/30 hover:border-[#C6A477] hover:bg-[#221A13] transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <Gem className="w-4 h-4 text-[#C6A477]" />
+                    <Sparkles className="w-4 h-4 text-[#C6A477]" />
                     <div>
                       <p className="font-semibold text-white">Tariflar & VIP Paketlar</p>
                       <p className="text-[10px] text-[#A89888]">Free, Pro, Ultra, Max (100%)</p>

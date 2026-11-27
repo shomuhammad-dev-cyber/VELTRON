@@ -1202,15 +1202,15 @@ export default function AdminPortalPage() {
       {statusModalOpen && selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
           <div className="max-w-md w-full rounded-3xl bg-[#0C101A] border border-white/[0.1] p-6 space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
-              <h3 className="text-base font-bold text-white font-display">
-                {selectedUser.isActive ? 'Suspend User Account' : 'Reactivate User Account'}
+            <div className="flex items-center justify-between border-b border-[#C6A477]/30 pb-3">
+              <h3 className="text-base font-bold text-white font-serif">
+                {selectedUser.isActive ? 'Foydalanuvchini Bloklash (Ban)' : 'Blokdan Chiqarish (Unban)'}
               </h3>
               <button
                 onClick={() => setStatusModalOpen(false)}
                 className="text-slate-400 hover:text-white text-xs font-mono"
               >
-                Cancel
+                ✕
               </button>
             </div>
 
@@ -1218,27 +1218,34 @@ export default function AdminPortalPage() {
               <div
                 className={`p-3.5 rounded-xl border space-y-1 ${
                   selectedUser.isActive
-                    ? 'bg-red-500/10 border-red-500/20 text-red-300'
-                    : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
+                    ? 'bg-red-500/15 border-red-500/40 text-red-200'
+                    : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-200'
                 }`}
               >
-                <p className="font-bold">
+                <p className="font-bold text-sm">
                   {selectedUser.isActive
-                    ? 'Account suspension will immediately terminate all active sessions and freeze transaction access.'
-                    : 'Reactivating will restore login privileges for this user.'}
+                    ? '⚠️ Foydalanuvchini bloklashni (ban qilishni) chindan ham istaysizmi?'
+                    : 'Ushbu foydalanuvchini blokdan chiqarishni tasdiqlaysizmi?'}
                 </p>
-                <p className="text-[10px] text-slate-300">Identity: {selectedUser.email}</p>
+                <p className="text-[11px] text-slate-300">
+                  {selectedUser.isActive
+                    ? 'Bloklangach, ushbu foydalanuvchi darhol platformadan chiqariladi va savdo/hisoblarga kirish to‘xtatiladi.'
+                    : 'Foydalanuvchining hisobi faollashtiriladi.'}
+                </p>
+                <p className="text-[10px] text-[#C6A477] font-bold pt-1">
+                  Mijoz: {selectedUser.email || selectedUser.displayName || selectedUser.id}
+                </p>
               </div>
 
               <div>
-                <label className="text-[10px] uppercase text-slate-400">Administrative Reason *</label>
+                <label className="text-[10px] uppercase text-[#C6A477] font-semibold">Bloklash Sababi (Audit Jurnali uchun) *</label>
                 <textarea
                   required
-                  rows={3}
+                  rows={2}
                   value={statusActionReason}
                   onChange={(e) => setStatusActionReason(e.target.value)}
-                  placeholder="Operational justification for audit ledger logging..."
-                  className="w-full mt-1 bg-[#07090E] border border-white/[0.08] rounded-xl p-3 text-white focus:outline-none focus:border-valixen-ice"
+                  placeholder="Xavfsizlik qoidalariga zid harakat yoki xavfli urinish..."
+                  className="w-full mt-1 bg-[#1C1412] border border-[#C6A477]/30 rounded-xl p-3 text-white focus:outline-none focus:border-[#C6A477]"
                 />
               </div>
 
@@ -1249,7 +1256,7 @@ export default function AdminPortalPage() {
                   size="sm"
                   onClick={() => setStatusModalOpen(false)}
                 >
-                  Cancel
+                  Bekor Qilish
                 </Button>
                 <Button
                   type="submit"
@@ -1257,7 +1264,11 @@ export default function AdminPortalPage() {
                   variant={selectedUser.isActive ? 'danger' : 'primary'}
                   size="sm"
                 >
-                  {isUpdatingStatus ? 'Executing...' : selectedUser.isActive ? 'Confirm Suspension' : 'Confirm Reactivation'}
+                  {isUpdatingStatus
+                    ? 'Bajarilmoqda...'
+                    : selectedUser.isActive
+                    ? 'Ha, Chindan Ham Bloklansin (Ban)'
+                    : 'Blokdan Chiqarish'}
                 </Button>
               </div>
             </form>
